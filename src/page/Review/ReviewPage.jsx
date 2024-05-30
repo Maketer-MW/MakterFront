@@ -182,6 +182,7 @@ const ReveiwP = styled.div`
 
 const Container = styled.div`
   max-width: 1280px;
+  height: 1200px;
   margin: 0 auto;
   padding: 20px;
   display: flex;
@@ -203,7 +204,7 @@ const HeaderContainer = styled.header`
 const ReviewContainer = styled.main`
   max-width: 85%;
   min-height: 750px;
-  margin: auto;
+
   margin-right: 40px;
 
   max-height: 750px;
@@ -305,7 +306,7 @@ const CardSection = styled.section`
 `;
 
 const CardTitle = styled.h2`
-  font-size: 22px;
+  font-size: 32px;
   margin-bottom: 10px;
 `;
 

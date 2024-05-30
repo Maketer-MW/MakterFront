@@ -117,7 +117,7 @@ const ReviewPage = styled.div`
 `;
 const ReviewPageWrapper = styled.div`
   max-width: 1000px;
-  height: 1000px;
+  height: 1200px;
   margin: 0 auto;
   padding: 20px;
   gap: 100px;
