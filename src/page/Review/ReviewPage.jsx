@@ -84,6 +84,7 @@ function ReviewPage() {
       .then((data) => {
         console.log("Success:", data);
         fetchReviews(id); // 리뷰 작성 후에 목록 갱신
+        handleToggle();
       })
       .catch((error) => {
         console.error("Error:", error);
