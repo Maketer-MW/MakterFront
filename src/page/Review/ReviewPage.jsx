@@ -148,6 +148,7 @@ function ReviewPage() {
               </AdditionalInfo>
               <AdditionalInfo>
                 <InfoIcon icon={faClock} size="2x" />
+
                 <InfoText>영업 시간: {restranutInfo.opening_hours}</InfoText>
               </AdditionalInfo>
               <AdditionalInfo>
@@ -312,27 +313,41 @@ const CardTitle = styled.h2`
 `;
 
 const AdditionalInfoBox = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  padding: 20px;
   position: absolute;
-  flex-direction: column;
   width: 100%;
   bottom: 20px;
-  padding: 10px;
-  align-items: center;
   border-radius: 30px;
+  background-color: rgba(255, 255, 255, 0.8); /* 배경색 추가 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 그림자 추가 */
 `;
 
 const AdditionalInfo = styled.div`
   display: flex;
   align-items: center;
-  margin-top: 15px;
+  padding: 10px; /* 패딩 추가 */
+  background-color: #ffffff; /* 배경색 추가 */
+  border-radius: 10px; /* 모서리 둥글게 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 그림자 추가 */
+  transition: transform 0.2s; /* 트랜지션 추가 */
+  font-size: 16px; /* 폰트 크기 조절 */
+
+  &:hover {
+    transform: translateY(-5px); /* 호버 시 살짝 올라감 */
+  }
 `;
 
 const InfoIcon = styled(FontAwesomeIcon)`
   margin-right: 10px;
+  font-size: 24px; /* 아이콘 크기 조절 */
+  color: #555; /* 아이콘 색상 조절 */
 `;
 
 const InfoText = styled.span`
-  font-size: 22px;
+  font-size: 16px; /* 텍스트 크기 조절 */
   font-weight: 600;
+  color: #333; /* 텍스트 색상 조절 */
 `;

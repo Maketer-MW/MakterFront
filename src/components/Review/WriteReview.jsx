@@ -27,10 +27,10 @@ function WriteReview({ onSubmit }) {
         <RatingStars rating={rating} onRate={setRating} />
       </RatingContainer>
       <Form onSubmit={handleSubmit}>
-        <InputLabel>이름</InputLabel>
+        <InputLabel>제목</InputLabel>
         <SmallInput
           type="text"
-          placeholder="이름"
+          placeholder="제목"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required
