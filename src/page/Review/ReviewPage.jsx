@@ -128,17 +128,15 @@ function ReviewPage() {
                 <CardTitle>{restranutInfo.name}</CardTitle>
                 <RatingStars rating={restranutInfo.rating} />
 
-                <AdditionalInfo>
-                  <ReviewPanel>
-                    <ToggleContainer onClick={handleToggle}>
-                      <ReviewButton active={isActive}>
-                        리뷰 {restranutInfo.rating}{" "}
-                      </ReviewButton>
-                      <ReviewButton active={!isActive}>리뷰 작성</ReviewButton>
-                      <ToggleSlider active={isActive} />
-                    </ToggleContainer>
-                  </ReviewPanel>
-                </AdditionalInfo>
+                <ReviewPanel>
+                  <ToggleContainer onClick={handleToggle}>
+                    <ReviewButton active={isActive}>
+                      리뷰 {restranutInfo.rating}{" "}
+                    </ReviewButton>
+                    <ReviewButton active={!isActive}>리뷰 작성</ReviewButton>
+                    <ToggleSlider active={isActive} />
+                  </ToggleContainer>
+                </ReviewPanel>
               </CardSection>
             </ImgSection>
             <AdditionalInfoBox>
@@ -322,7 +320,6 @@ const AdditionalInfoBox = styled.div`
   bottom: 20px;
   border-radius: 30px;
   background-color: rgba(255, 255, 255, 0.8); /* 배경색 추가 */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 그림자 추가 */
 `;
 
 const AdditionalInfo = styled.div`
