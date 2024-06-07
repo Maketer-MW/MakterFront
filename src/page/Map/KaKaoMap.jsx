@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import styled from "styled-components";
 
-const KakaoMap = ({ mapMoveFunction }) => {
+const KakaoMap = ({ mapMoveFunction, handleRestaurantClick }) => {
   const [kakaoLoaded, setKakaoLoaded] = useState(false);
   const [restaurants, setRestaurants] = useState([]);
   const mapContainer = useRef(null);
@@ -71,8 +71,9 @@ const KakaoMap = ({ mapMoveFunction }) => {
             parseFloat(restaurant.longitude)
           );
           mapInstance.current.setCenter(position);
-          mapInstance.current.setLevel(4);
+          mapInstance.current.setLevel(6);
           console.log("Map moved to (marker click):", position);
+          handleRestaurantClick(restaurant); // 마커 클릭 시 식당 정보 설정
         });
 
         marker.setMap(mapInstance.current);
@@ -85,7 +86,7 @@ const KakaoMap = ({ mapMoveFunction }) => {
       const { latitude, longitude } = mapMoveFunction;
       const position = new window.kakao.maps.LatLng(latitude, longitude);
       mapInstance.current.setCenter(position);
-      mapInstance.current.setLevel(1);
+      mapInstance.current.setLevel(6);
       console.log("Map center set to:", position);
     }
   }, [mapMoveFunction]);

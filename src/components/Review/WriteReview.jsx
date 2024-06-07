@@ -21,7 +21,9 @@ function WriteReview({ onSubmit }) {
 
   return (
     <WriteReviewContainer>
-      <Title>리뷰 작성</Title>
+      <BugerBox>
+        <Title>리뷰 작성</Title>
+      </BugerBox>
       <RatingContainer>
         <RatingLabel>별점</RatingLabel>
         <RatingStars rating={rating} onRate={setRating} />
@@ -35,9 +37,9 @@ function WriteReview({ onSubmit }) {
           onChange={(e) => setUsername(e.target.value)}
           required
         />
-        <InputLabel>리뷰 내용</InputLabel>
+        <InputLabel>후기</InputLabel>
         <Textarea
-          placeholder="리뷰를 작성해주세요."
+          placeholder="후기를 작성해주세요"
           value={content}
           onChange={(e) => setContent(e.target.value)}
           required
@@ -57,6 +59,11 @@ const WriteReviewContainer = styled.div`
   padding: 20px;
 `;
 
+const BugerBox = styled.div`
+  background-color: #e5cb7a;
+  border-top-left-radius: 40px 40px;
+  border-top-right-radius: 40px 40px;
+`;
 const Title = styled.h2`
   font-size: 40px;
   font-weight: bold;
@@ -75,6 +82,8 @@ const RatingLabel = styled.label`
   font-size: 24px;
   font-weight: bold;
   margin-right: 10px;
+  border-top: 5px solid #e5cb7a;
+  border-bottom: 5px solid #e5cb7a;
 `;
 
 const Form = styled.form`
@@ -84,9 +93,11 @@ const Form = styled.form`
 `;
 
 const InputLabel = styled.label`
-  font-size: 24px;
+  font-size: 32px;
   font-weight: bold;
   margin-top: 20px;
+  text-align: center;
+  width: 100%;
 `;
 
 const Input = styled.input`
@@ -99,7 +110,7 @@ const Input = styled.input`
 `;
 
 const SmallInput = styled.input`
-  width: 50%;
+  width: 100%;
   padding: 10px;
   margin-bottom: 20px;
   border: 1px solid #ccc;
