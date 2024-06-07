@@ -34,7 +34,6 @@ function FoodDetail({ selectedRestaurant, handleMapMove }) {
         opening_hours: `${selectedRestaurant.opening_hours}`,
         rating: `${selectedRestaurant.rating}`,
         image: `${selectedRestaurant.image}`,
-        category: `${selectedRestaurant.category}`,
       },
     });
   };
@@ -51,20 +50,16 @@ function FoodDetail({ selectedRestaurant, handleMapMove }) {
   };
 
   return (
-    <div>
-      {selectedRestaurant && (
-        <div key={selectedRestaurant.restaurants_id}>
-          <p>
+    <Container>
+      <ButtonContainer>
+        {selectedRestaurant && (
+          <div key={selectedRestaurant.restaurants_id}>
             <Button onClick={handleDetailModalOpen}>세부 정보 보기</Button>
-          </p>
-          <p>
             <Button onClick={handleDetailPost}>리뷰 작성하기</Button>
-          </p>
-          <p>
             <Button onClick={moveToMap}>지도로 이동</Button>
-          </p>
-        </div>
-      )}
+          </div>
+        )}
+      </ButtonContainer>
       <Modal
         isOpen={isDetailModalOpen}
         onRequestClose={handleDetailModalClose}
@@ -75,7 +70,6 @@ function FoodDetail({ selectedRestaurant, handleMapMove }) {
           },
           content: {
             width: "50%",
-
             maxWidth: "400px",
             maxHeight: "600px",
             margin: "0 auto",
@@ -91,11 +85,19 @@ function FoodDetail({ selectedRestaurant, handleMapMove }) {
           {selectedRestaurant && <FoodIndex restaurant={selectedRestaurant} />}
         </ModalContent>
       </Modal>
-    </div>
+    </Container>
   );
 }
 
 export default FoodDetail;
+
+const Container = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: none;
+`;
 
 const ModalContent = styled.div`
   width: 100%;
@@ -106,13 +108,35 @@ const Button = styled.button`
   color: black;
   border: none;
   font-weight: bold;
-  padding: 8px 16px;
+  padding: 12px 24px;
   font-size: 16px;
-  border-radius: 4px;
+  border-radius: 8px;
+  border: solid 1px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 200px;
+  text-align: center;
 
   &:hover {
     background-color: #b6b654;
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
   }
+
+  &:active {
+    background-color: #9d9d4d;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+  }
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 `;

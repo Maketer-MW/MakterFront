@@ -60,7 +60,7 @@ const WriteReviewContainer = styled.div`
 `;
 
 const BugerBox = styled.div`
-  background-color: #e5cb7a;
+  background-color: #e9e5a9;
   border-radius: 40px;
 `;
 const Title = styled.h2`
@@ -81,8 +81,8 @@ const RatingLabel = styled.label`
   font-size: 24px;
   font-weight: bold;
   margin-right: 10px;
-  border-top: 5px solid #e5cb7a;
-  border-bottom: 5px solid #e5cb7a;
+  border-top: 5px solid #e9e5a9;
+  border-bottom: 5px solid #e9e5a9;
 `;
 
 const Form = styled.form`
@@ -128,7 +128,7 @@ const Textarea = styled.textarea`
 `;
 
 const SubmitButton = styled.button`
-  background-color: #f1c40f;
+  background-color: #e9e5a9;
   color: white;
   border: none;
   padding: 12px 20px;
@@ -139,6 +139,6 @@ const SubmitButton = styled.button`
   width: 200px;
 
   &:hover {
-    background-color: #e67e22;
+    background-color: #e0d645;
   }
 `;

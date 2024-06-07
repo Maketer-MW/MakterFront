@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 const Card = styled.div`
   width: 300px;
+  max-height: 400px;
   margin: 20px;
   border: 1px solid #ddd;
   background-color: white;
@@ -50,7 +51,6 @@ function RestaurantCard({ restaurant }) {
         <Info>전화번호: {restaurant.phone}</Info>
         <Info>영업 시간: {restaurant.opening_hours}</Info>
         <Info>평점: {restaurant.rating}</Info>
-        <Info>음식 종류: {restaurant.food_type}</Info>
       </Content>
     </Card>
   );
