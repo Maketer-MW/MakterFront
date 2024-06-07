@@ -61,8 +61,7 @@ const WriteReviewContainer = styled.div`
 
 const BugerBox = styled.div`
   background-color: #e5cb7a;
-  border-top-left-radius: 40px 40px;
-  border-top-right-radius: 40px 40px;
+  border-radius: 40px;
 `;
 const Title = styled.h2`
   font-size: 40px;
