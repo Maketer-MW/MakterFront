@@ -238,7 +238,7 @@ const FilterContainer = styled.div`
 
 const FilterButton = styled.button`
   padding: 5px 10px;
-  font-size: 14px;
+  font-size: 20px;
   font-weight: bold;
   background-color: #e9e5a9;
   border: none;
