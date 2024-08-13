@@ -16,19 +16,53 @@ import FoodIndex from "./components/FoodIndex"; // FoodIndex 임포트 추가
 import styled from "styled-components"; // styled-components 임포트 추가
 import ServiceFoods from "./components/ServiceFoods";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { faX } from "@fortawesome/free-solid-svg-icons";
+
 function App() {
   const [mapMoveFunction, setMapMoveFunction] = useState(null);
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [filteredRestaurants, setFilteredRestaurants] = useState([]);
   const [restaurants, setRestaurants] = useState([]);
+
   useEffect(() => {
     if (mapMoveFunction) {
       console.log("MapMoveFunction is set");
     }
   }, [mapMoveFunction]);
+
+  useEffect(() => {
+    const sessionId = localStorage.getItem("sessionId");
+    if (sessionId) {
+      // 세션이 있으면 로그인 상태 확인
+      checkSession(sessionId);
+    }
+  }, []);
+
+  const checkSession = async (sessionId) => {
+    try {
+      const response = await fetch(
+        "http://localhost:3000/api/v1/check-session",
+        {
+          method: "GET",
+          credentials: "include", // 쿠키를 포함한 요청
+        }
+      );
+      const res = await response.json();
+      if (res.isAuthenticated) {
+        setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
+      }
+    } catch (error) {
+      console.error("Failed to check session:", error);
+      setIsAuthenticated(false);
+    }
+  };
 
   const handleMapMove = (latitude, longitude) => {
     console.log("handleMapMove called with:", latitude, longitude);
@@ -46,8 +80,11 @@ function App() {
   };
 
   console.log("handleMapMove called with:", mapMoveFunction);
+
   return (
     <BrowserRouter>
+      <ToastContainer position="top-right" autoClose={5000} />
+      <Header setAuth={setIsAuthenticated} isAuthenticated={isAuthenticated} />
       <Routes>
         <Route path="/" element={<MainHN />} />
         <Route
@@ -80,21 +117,18 @@ function App() {
 
 const MainHN = () => (
   <div>
-    <Header />
     <Main />
   </div>
 );
 
 const ReviewHN = () => (
   <div>
-    <Header />
     <ReviewPage />
   </div>
 );
 
 const FullReviewHN = () => (
   <div>
-    <Header />
     <MainReviewPages />
   </div>
 );
@@ -109,7 +143,6 @@ const FoodHN = ({
   error,
 }) => (
   <div>
-    <Header />
     <Home
       handleMapMove={handleMapMove}
       mapMoveFunction={mapMoveFunction}
@@ -132,49 +165,42 @@ const FoodHN = ({
 
 const ServiceHN = () => (
   <div>
-    <Header />
     <ServicePage />
   </div>
 );
 
 const ServiceFoodHN = () => (
   <div>
-    <Header />
     <ServiceFoods />
   </div>
 );
 
 const CommunityListHN = () => (
   <div>
-    <Header />
     <MainListPage />
   </div>
 );
 
 const CommunityWriteHN = () => (
   <div>
-    <Header />
     <MainWritePage />
   </div>
 );
 
 const CategoryReviewHN = () => (
   <div>
-    <Header />
     <CategoryReviewPage />
   </div>
 );
 
 const EditPageHN = () => (
   <div>
-    <Header />
     <EditPage />
   </div>
 );
 
 const DetailPostPageHN = () => (
   <div>
-    <Header />
     <DetailPost />
   </div>
 );
@@ -185,7 +211,6 @@ const Modal = styled.div`
   left: 50%;
   transform: translate(-50%, 0);
   z-index: 1000;
-
   padding: 20px;
   border-radius: 10px;
 `;

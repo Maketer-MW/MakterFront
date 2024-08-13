@@ -7,6 +7,8 @@ const ServiceContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
+  flex-direction: column; /* Add this line to stack Header and Service vertically */
 `;
 
 function ServicePage() {
