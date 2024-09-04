@@ -7,11 +7,13 @@ import {
   faLock,
   faEye,
   faEyeSlash,
+  faEnvelope,
 } from "@fortawesome/free-solid-svg-icons"; // 아이콘 임포트
 
-function LoginModal({ show, onClose, setAuth }) {
+function AuthModal({ show, onClose, setAuth }) {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [showPassword, setShowPassword] = useState(false); // 비밀번호 표시 상태
+  const [isLogin, setIsLogin] = useState(true); // 로그인/회원가입 상태 관리
 
   const handleChange = (e) => {
     setFormData({
@@ -26,8 +28,11 @@ function LoginModal({ show, onClose, setAuth }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const endpoint = isLogin
+      ? "https://makterback.fly.dev/api/v1/login"
+      : "https://makterback.fly.dev/api/v1/register"; // 회원가입 또는 로그인 엔드포인트
     try {
-      const response = await fetch("https://makterback.fly.dev/api/v1/login", {
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -38,20 +43,24 @@ function LoginModal({ show, onClose, setAuth }) {
 
       const parseRes = await response.json();
 
-      console.log("로그인 응답:", parseRes);
+      console.log(isLogin ? "로그인 응답:" : "회원가입 응답:", parseRes);
 
       if (parseRes.resultCode === "S-1") {
-        localStorage.setItem("sessionId", parseRes.sessionId); // 세션 ID 저장
-        setAuth(true);
-        console.log("session", parseRes.sessionId);
-        toast.success("로그인 성공!");
-        onClose();
+        if (isLogin) {
+          localStorage.setItem("sessionId", parseRes.sessionId); // 세션 ID 저장
+          setAuth(true);
+          toast.success("로그인 성공!");
+          onClose();
+        } else {
+          toast.success("회원가입 성공!");
+          setIsLogin(true); // 회원가입 성공 시 로그인 모드로 전환
+        }
       } else {
-        toast.error("로그인 실패!");
+        toast.error(isLogin ? "로그인 실패!" : "회원가입 실패!");
       }
     } catch (err) {
-      console.error("로그인 에러:", err.message);
-      toast.error("로그인 에러: " + err.message);
+      console.error("에러:", err.message);
+      toast.error("에러: " + err.message);
     }
   };
 
@@ -63,8 +72,42 @@ function LoginModal({ show, onClose, setAuth }) {
     <ModalOverlay>
       <ModalContainer>
         <CloseButton onClick={onClose}>&times;</CloseButton>
-        <h2>맛케터 로그인</h2>
+        <h2>{isLogin ? "맛케터 로그인" : "맛케터 회원가입"}</h2>{" "}
+        {/* 모드에 따른 제목 변경 */}
         <form onSubmit={handleSubmit}>
+          {/* 회원가입일 때만 표시되는 필드들 */}
+          {!isLogin && (
+            <>
+              <InputWrapper>
+                <FontAwesomeIcon icon={faEnvelope} />
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="이메일을 입력해주세요"
+                  value={formData.email || ""}
+                  onChange={handleChange}
+                  required
+                />
+              </InputWrapper>
+
+              <InputWrapper>
+                <FontAwesomeIcon icon={faLock} />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  placeholder="비밀번호 확인"
+                  value={formData.confirmPassword || ""}
+                  onChange={handleChange}
+                  required
+                />
+                <PasswordToggleIcon onClick={togglePasswordVisibility}>
+                  <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                </PasswordToggleIcon>
+              </InputWrapper>
+            </>
+          )}
+
+          {/* 로그인 시 표시되는 필드 */}
           <InputWrapper>
             <FontAwesomeIcon icon={faUser} />
             <input
@@ -86,22 +129,36 @@ function LoginModal({ show, onClose, setAuth }) {
               value={formData.password}
               onChange={handleChange}
               required
-            />{" "}
+            />
             <PasswordToggleIcon onClick={togglePasswordVisibility}>
               <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />{" "}
               {/* 아이콘 토글 */}
             </PasswordToggleIcon>
           </InputWrapper>
-          <a href="">비밀번호 재설정</a>
-          <button type="submit">로그인</button>
-          <button type="submit">회원가입</button>
+
+          {isLogin ? (
+            <>
+              <a href="">비밀번호 재설정</a>
+              <button type="submit">로그인</button>
+              <button type="button" onClick={() => setIsLogin(false)}>
+                회원가입
+              </button>
+            </>
+          ) : (
+            <>
+              <button type="submit">회원가입</button>
+              <button type="button" onClick={() => setIsLogin(true)}>
+                로그인으로 돌아가기
+              </button>
+            </>
+          )}
         </form>
       </ModalContainer>
     </ModalOverlay>
   );
 }
 
-export default LoginModal;
+export default AuthModal;
 
 const InputWrapper = styled.div`
   position: relative;

@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { toast } from "react-toastify";
 import Potodance from "../components/Potodance";
-import LoginModal from "../components/LoginModal";
 import ProfileModal from "../components/ProfileModal";
+import AuthModal from "../components/AuthModal";
 
 const Header = ({ setAuth, isAuthenticated }) => {
   const [name, setName] = useState("");
@@ -71,7 +71,7 @@ const Header = ({ setAuth, isAuthenticated }) => {
         )}
       </NavLinks>
       {showLoginModal && (
-        <LoginModal
+        <AuthModal
           show={showLoginModal}
           onClose={closeLoginModal}
           setAuth={setAuth} // 로그인 성공 시 부모 컴포넌트의 상태를 업데이트
