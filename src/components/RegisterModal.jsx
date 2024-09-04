@@ -1,64 +1,4 @@
-import React, { useState } from "react";
-import styled from "styled-components";
-import { toast } from "react-toastify";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faUser,
-  faLock,
-  faEye,
-  faEyeSlash,
-} from "@fortawesome/free-solid-svg-icons"; // 아이콘 임포트
-
-function LoginModal({ show, onClose, setAuth }) {
-  const [formData, setFormData] = useState({ username: "", password: "" });
-  const [showPassword, setShowPassword] = useState(false); // 비밀번호 표시 상태
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword); // 비밀번호 표시 상태 토글
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch("https://makterback.fly.dev/api/v1/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-        credentials: "include", // 세션 쿠키를 포함하여 요청
-      });
-
-      const parseRes = await response.json();
-
-      console.log("로그인 응답:", parseRes);
-
-      if (parseRes.resultCode === "S-1") {
-        localStorage.setItem("sessionId", parseRes.sessionId); // 세션 ID 저장
-        setAuth(true);
-        console.log("session", parseRes.sessionId);
-        toast.success("로그인 성공!");
-        onClose();
-      } else {
-        toast.error("로그인 실패!");
-      }
-    } catch (err) {
-      console.error("로그인 에러:", err.message);
-      toast.error("로그인 에러: " + err.message);
-    }
-  };
-
-  if (!show) {
-    return null;
-  }
-
+function RegisterModal() {
   return (
     <ModalOverlay>
       <ModalContainer>
@@ -101,7 +41,7 @@ function LoginModal({ show, onClose, setAuth }) {
   );
 }
 
-export default LoginModal;
+export default RegisterModal;
 
 const InputWrapper = styled.div`
   position: relative;

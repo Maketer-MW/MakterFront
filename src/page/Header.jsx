@@ -16,7 +16,7 @@ const Header = ({ setAuth, isAuthenticated }) => {
   const logout = async (e) => {
     e.preventDefault();
     try {
-      await fetch("http://localhost:3000/api/v1/logout", {
+      await fetch("https://makterback.fly.dev/api/v1/logout", {
         method: "GET",
         credentials: "include", // 세션 쿠키를 포함하여 전송
       });

@@ -35,34 +35,32 @@ function App() {
     }
   }, [mapMoveFunction]);
 
+  // App component useEffect
   useEffect(() => {
-    const sessionId = localStorage.getItem("sessionId");
-    if (sessionId) {
-      // 세션이 있으면 로그인 상태 확인
-      checkSession(sessionId);
-    }
-  }, []);
+    const checkSession = async () => {
+      try {
+        const response = await fetch(
+          "https://makterback.fly.dev/api/v1/check-session",
+          {
+            method: "GET",
+            credentials: "include", // 세션 쿠키 포함
+          }
+        );
+        const result = await response.json();
 
-  const checkSession = async (sessionId) => {
-    try {
-      const response = await fetch(
-        "http://localhost:3000/api/v1/check-session",
-        {
-          method: "GET",
-          credentials: "include", // 쿠키를 포함한 요청
+        if (result.isAuthenticated) {
+          setIsAuthenticated(true); // 로그인 상태 유지
+        } else {
+          setIsAuthenticated(false); // 로그아웃 처리
         }
-      );
-      const res = await response.json();
-      if (res.isAuthenticated) {
-        setIsAuthenticated(true);
-      } else {
+      } catch (error) {
+        console.error("세션 체크 오류:", error);
         setIsAuthenticated(false);
       }
-    } catch (error) {
-      console.error("Failed to check session:", error);
-      setIsAuthenticated(false);
-    }
-  };
+    };
+
+    checkSession(); // 첫 로드 시 한 번만 세션을 체크
+  }, []);
 
   const handleMapMove = (latitude, longitude) => {
     console.log("handleMapMove called with:", latitude, longitude);
