@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import LoadingBurger from "../components/LoadingBurger"; // 경로에 맞춰서 import
+
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -11,6 +13,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons"; // 아이콘 임포트
 
 function AuthModal({ show, onClose, setAuth }) {
+  const [loading, setLoading] = useState(false); // 로딩 상태 관리
+
   const [loginData, setLoginData] = useState({ username: "", password: "" });
   const [registerData, setRegisterData] = useState({
     username: "",
@@ -46,6 +50,8 @@ function AuthModal({ show, onClose, setAuth }) {
   // 제출 핸들러 (상태에 따라 다른 데이터를 전송)
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // 요청 시작 시 로딩 상태 켜기
+
     const endpoint = isLogin
       ? "https://makterback.fly.dev/api/v1/login"
       : "https://makterback.fly.dev/api/v1/register";
@@ -54,6 +60,7 @@ function AuthModal({ show, onClose, setAuth }) {
 
     // 회원가입 시 비밀번호 일치 확인
     if (!isLogin && registerData.password !== registerData.confirmPassword) {
+      setLoading(false); // 비밀번호 불일치 시 로딩 해제
       return toast.error("비밀번호가 일치하지 않습니다.");
     }
 
@@ -68,6 +75,7 @@ function AuthModal({ show, onClose, setAuth }) {
       });
 
       const parseRes = await response.json();
+      setLoading(false); // 요청 완료 후 로딩 상태 해제
 
       if (parseRes.resultCode === "S-1") {
         if (isLogin) {
@@ -83,6 +91,7 @@ function AuthModal({ show, onClose, setAuth }) {
         toast.error(isLogin ? "로그인 실패!" : "회원가입 실패!");
       }
     } catch (err) {
+      setLoading(false); // 에러 발생 시 로딩 상태 해제
       toast.error("에러: " + err.message);
     }
   };
@@ -94,103 +103,109 @@ function AuthModal({ show, onClose, setAuth }) {
       <ModalContainer>
         <CloseButton onClick={onClose}>&times;</CloseButton>
         <h2>{isLogin ? "맛케터 로그인" : "맛케터 회원가입"}</h2>
-        <form onSubmit={handleSubmit}>
-          {/* 로그인 필드 */}
-          <InputWrapper>
-            <FontAwesomeIcon icon={faUser} />
-            <input
-              type="text"
-              name="username"
-              placeholder="아이디를 입력해주세요"
-              value={isLogin ? loginData.username : registerData.username}
-              onChange={handleChange}
-              required
-            />
-          </InputWrapper>
-          <InputWrapper>
-            <FontAwesomeIcon icon={faLock} />
-            <input
-              type={showPassword ? "text" : "password"}
-              name="password"
-              placeholder="비밀번호를 입력해주세요"
-              value={isLogin ? loginData.password : registerData.password}
-              onChange={handleChange}
-              required
-            />
-            <PasswordToggleIcon onClick={togglePasswordVisibility}>
-              <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
-            </PasswordToggleIcon>
-          </InputWrapper>
 
-          {/* 회원가입 필드 */}
-          {!isLogin && (
-            <>
-              <InputWrapper>
-                <FontAwesomeIcon icon={faLock} />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  name="confirmPassword"
-                  placeholder="비밀번호 확인"
-                  value={registerData.confirmPassword}
-                  onChange={handleChange}
-                  required
-                />
-                <PasswordToggleIcon onClick={togglePasswordVisibility}>
-                  <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
-                </PasswordToggleIcon>
-              </InputWrapper>
-              <InputWrapper>
-                <FontAwesomeIcon icon={faEnvelope} />
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="이메일을 입력해주세요"
-                  value={registerData.email}
-                  onChange={handleChange}
-                  required
-                />
-              </InputWrapper>
+        {/* 로딩 중일 때는 햄버거 로딩 컴포넌트를 보여줍니다 */}
+        {loading ? (
+          <LoadingBurger />
+        ) : (
+          <form onSubmit={handleSubmit}>
+            {/* 로그인 필드 */}
+            <InputWrapper>
+              <FontAwesomeIcon icon={faUser} />
+              <input
+                type="text"
+                name="username"
+                placeholder="아이디를 입력해주세요"
+                value={isLogin ? loginData.username : registerData.username}
+                onChange={handleChange}
+                required
+              />
+            </InputWrapper>
+            <InputWrapper>
+              <FontAwesomeIcon icon={faLock} />
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="비밀번호를 입력해주세요"
+                value={isLogin ? loginData.password : registerData.password}
+                onChange={handleChange}
+                required
+              />
+              <PasswordToggleIcon onClick={togglePasswordVisibility}>
+                <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+              </PasswordToggleIcon>
+            </InputWrapper>
 
-              <InputWrapper>
-                <FontAwesomeIcon icon={faUser} />
-                <input
-                  type="text"
-                  name="full_name"
-                  placeholder="이름을 입력해주세요"
-                  value={registerData.full_name}
-                  onChange={handleChange}
-                />
-              </InputWrapper>
-              <InputWrapper>
-                <FontAwesomeIcon icon={faUser} />
-                <input
-                  type="tel"
-                  name="phone_number"
-                  placeholder="전화번호를 입력해주세요"
-                  value={registerData.phone_number}
-                  onChange={handleChange}
-                />
-              </InputWrapper>
-            </>
-          )}
+            {/* 회원가입 필드 */}
+            {!isLogin && (
+              <>
+                <InputWrapper>
+                  <FontAwesomeIcon icon={faLock} />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="confirmPassword"
+                    placeholder="비밀번호 확인"
+                    value={registerData.confirmPassword}
+                    onChange={handleChange}
+                    required
+                  />
+                  <PasswordToggleIcon onClick={togglePasswordVisibility}>
+                    <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                  </PasswordToggleIcon>
+                </InputWrapper>
+                <InputWrapper>
+                  <FontAwesomeIcon icon={faEnvelope} />
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="이메일을 입력해주세요"
+                    value={registerData.email}
+                    onChange={handleChange}
+                    required
+                  />
+                </InputWrapper>
 
-          {isLogin ? (
-            <>
-              <a href="">비밀번호 재설정</a>
-              <button type="submit">로그인</button>
-              <button type="button" onClick={() => setIsLogin(false)}>
-                회원가입
-              </button>
-            </>
-          ) : (
-            <>
-              <button type="submit">회원가입</button>
-              <button type="button" onClick={() => setIsLogin(true)}>
-                로그인으로 돌아가기
-              </button>
-            </>
-          )}
-        </form>
+                <InputWrapper>
+                  <FontAwesomeIcon icon={faUser} />
+                  <input
+                    type="text"
+                    name="full_name"
+                    placeholder="이름을 입력해주세요"
+                    value={registerData.full_name}
+                    onChange={handleChange}
+                  />
+                </InputWrapper>
+                <InputWrapper>
+                  <FontAwesomeIcon icon={faUser} />
+                  <input
+                    type="tel"
+                    name="phone_number"
+                    placeholder="전화번호를 입력해주세요"
+                    value={registerData.phone_number}
+                    onChange={handleChange}
+                  />
+                </InputWrapper>
+              </>
+            )}
+
+            {isLogin ? (
+              <>
+                <a href="">비밀번호 재설정</a>
+                <button type="submit">로그인</button>
+                <button type="button" onClick={() => setIsLogin(false)}>
+                  회원가입
+                </button>
+              </>
+            ) : (
+              <>
+                <button type="submit">회원가입</button>
+                <button type="button" onClick={() => setIsLogin(true)}>
+                  로그인으로 돌아가기
+                </button>
+              </>
+            )}
+          </form>
+        )}
       </ModalContainer>
     </ModalOverlay>
   );
@@ -254,7 +269,7 @@ const ModalContainer = styled.div`
   width: 100%;
   height: 100%;
   padding: 2rem;
-  border: 5px solid black;
+  border: 0px;
   border-radius: 50px;
   box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
     rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
