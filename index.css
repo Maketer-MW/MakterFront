@@ -7,3 +7,47 @@
 body {
   font-family: "GowunDodum-Regular";
 }
+
+/* Toast 디자인 */
+/* Toast 디자인 */
+.Toastify__toast {
+  background-color: #ffffff !important; /* 배경색 변경 */
+  color: #333 !important; /* 텍스트 색 변경 */
+  border-radius: 10px !important; /* 모서리 둥글게 */
+  padding: 16px !important; /* 패딩 조정 */
+  font-family: "GowunDodum-Regular", sans-serif; /* 폰트 설정 */
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2) !important; /* 그림자 */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 200px; /* 최소 너비 설정 */
+}
+
+.Toastify__toast-body {
+  margin: 0 !important; /* 마진 제거 */
+  padding: 0 !important; /* 패딩 제거 */
+  color: #333 !important; /* 텍스트 색상 */
+}
+
+/* 닫기 버튼 */
+.Toastify__close-button {
+  color: #333 !important;
+  opacity: 1 !important;
+}
+
+.Toastify__close-button:hover {
+  color: #000 !important;
+}
+
+/* 진행 바 (보이도록 하려면 이 스타일 제거) */
+.Toastify__progress-bar {
+  background: #333 !important;
+}
+
+/* 컨테이너 커스텀 */
+.Toastify__toast-container {
+  width: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+}

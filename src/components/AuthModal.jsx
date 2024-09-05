@@ -10,6 +10,8 @@ import {
   faEye,
   faEyeSlash,
   faEnvelope,
+  faIdCard,
+  faPhone,
 } from "@fortawesome/free-solid-svg-icons"; // 아이콘 임포트
 
 function AuthModal({ show, onClose, setAuth }) {
@@ -47,7 +49,7 @@ function AuthModal({ show, onClose, setAuth }) {
     setShowPassword(!showPassword);
   };
 
-  // 숫자 입력 -> 전화번호 형식변환 함수
+  // 전화번호 입력창 전화번호 형식변환 함수
   const onInputPhone = (e) => {
     const { value } = e.target;
     e.target.value = value
@@ -57,22 +59,73 @@ function AuthModal({ show, onClose, setAuth }) {
         "$1-$2-$3" // 전화번호 형식 변환
       );
   };
+
+  /* 유효성 검증 함수 */
+
+  // id : 글자 수 제한 (4글자이상 ~ 12글자 이하)
+  const idLength = (value) => {
+    return value.length >= 4 && value.length <= 12;
+  };
+  // id : 영어 또는 숫자만 가능
+  const onlyNumberAndEnglish = (str) => {
+    return /^[A-Za-z0-9][A-Za-z0-9]*$/.test(str);
+  };
+
+  // 비밀번호 : 8글자 이상, 영문, 숫자, 특수문자 사용
+  const strongPassword = (str) => {
+    return /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/.test(
+      str
+    );
+  };
+
+  // 비밀번호 확인: 비밀번호와 비밀번호 확인 일치
+  const isMatch = (password1, password2) => {
+    return password1 === password2;
+  };
+
+  /* end 유효성 검증 함수 */
+
   // 제출 핸들러 (상태에 따라 다른 데이터를 전송)
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // 요청 시작 시 로딩 상태 켜기
+
+    // 유효성 검사 (회원가입일 경우에만 수행)
+    if (!isLogin) {
+      if (!idLength(registerData.username)) {
+        return toast.error("아이디는 4글자 이상, 12글자 이하로 입력해주세요.");
+      }
+
+      if (!onlyNumberAndEnglish(registerData.username)) {
+        return toast.error("아이디는 영어 또는 숫자만 입력 가능합니다.");
+      }
+
+      if (!strongPassword(registerData.password)) {
+        return toast.error(
+          "비밀번호는 8자 이상, 영문, 숫자, 특수문자를 포함해야 합니다."
+        );
+      }
+
+      if (!isMatch(registerData.password, registerData.confirmPassword)) {
+        return toast.error("비밀번호가 일치하지 않습니다.");
+      }
+
+      if (!registerData.phone_number) {
+        return toast.error("전화번호를 입력해주세요.");
+      }
+
+      if (registerData.phone_number.length < 10) {
+        return toast.error("전화번호 형식이 올바르지 않습니다.");
+      }
+    }
+
+    // 유효성 검사가 통과하면 로딩 시작
+    setLoading(true);
 
     const endpoint = isLogin
       ? "https://makterback.fly.dev/api/v1/login"
       : "https://makterback.fly.dev/api/v1/register";
 
     const data = isLogin ? loginData : registerData;
-
-    // 회원가입 시 비밀번호 일치 확인
-    if (!isLogin && registerData.password !== registerData.confirmPassword) {
-      setLoading(false); // 비밀번호 불일치 시 로딩 해제
-      return toast.error("비밀번호가 일치하지 않습니다.");
-    }
 
     try {
       const response = await fetch(endpoint, {
@@ -85,7 +138,7 @@ function AuthModal({ show, onClose, setAuth }) {
       });
 
       const parseRes = await response.json();
-      setLoading(false); // 요청 완료 후 로딩 상태 해제
+      setLoading(false);
 
       if (parseRes.resultCode === "S-1") {
         if (isLogin) {
@@ -101,8 +154,8 @@ function AuthModal({ show, onClose, setAuth }) {
         toast.error(isLogin ? "로그인 실패!" : "회원가입 실패!");
       }
     } catch (err) {
-      setLoading(false); // 에러 발생 시 로딩 상태 해제
-      toast.error("에러: " + err.message);
+      setLoading(false);
+      toast.error("서버 오류 발생: " + err.message);
     }
   };
 
@@ -112,7 +165,7 @@ function AuthModal({ show, onClose, setAuth }) {
     <ModalOverlay>
       <ModalContainer>
         <CloseButton onClick={onClose}>&times;</CloseButton>
-        <h2>{isLogin ? "맛케터 로그인" : "맛케터 회원가입"}</h2>
+        <h2>Makter</h2>
 
         {/* 로딩 중일 때는 햄버거 로딩 컴포넌트를 보여줍니다 */}
         {loading ? (
@@ -121,7 +174,7 @@ function AuthModal({ show, onClose, setAuth }) {
           <form onSubmit={handleSubmit}>
             {/* 로그인 필드 */}
             <InputWrapper>
-              <FontAwesomeIcon icon={faUser} />
+              <FontAwesomeIcon icon={faIdCard} />
               <input
                 type="text"
                 name="username"
@@ -186,7 +239,7 @@ function AuthModal({ show, onClose, setAuth }) {
                   />
                 </InputWrapper>
                 <InputWrapper>
-                  <FontAwesomeIcon icon={faUser} />
+                  <FontAwesomeIcon icon={faPhone} />
                   <input
                     type="tel"
                     name="phone_number"
