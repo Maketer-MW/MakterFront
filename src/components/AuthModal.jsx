@@ -47,6 +47,16 @@ function AuthModal({ show, onClose, setAuth }) {
     setShowPassword(!showPassword);
   };
 
+  // 숫자 입력 -> 전화번호 형식변환 함수
+  const onInputPhone = (e) => {
+    const { value } = e.target;
+    e.target.value = value
+      .replace(/[^0-9]/g, "") // 숫자 이외의 문자 제거
+      .replace(
+        /(^02.{0}|^01.{1}|[0-9]{3,4})([0-9]{3,4})([0-9]{4})/g,
+        "$1-$2-$3" // 전화번호 형식 변환
+      );
+  };
   // 제출 핸들러 (상태에 따라 다른 데이터를 전송)
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -182,6 +192,8 @@ function AuthModal({ show, onClose, setAuth }) {
                     name="phone_number"
                     placeholder="전화번호를 입력해주세요"
                     value={registerData.phone_number}
+                    onInput={onInputPhone} // 함수는 직접 참조
+                    maxLength={14} // 전화번호 형식에 맞게 최대 길이 제한
                     onChange={handleChange}
                   />
                 </InputWrapper>
