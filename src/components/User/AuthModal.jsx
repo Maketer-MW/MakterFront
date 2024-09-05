@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import LoadingBurger from "../components/LoadingBurger"; // 경로에 맞춰서 import
+import LoadingBurger from "../LoadingBurger"; // 경로에 맞춰서 import
 
-import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUser,
@@ -12,7 +11,9 @@ import {
   faEnvelope,
   faIdCard,
   faPhone,
+  faCircleXmark,
 } from "@fortawesome/free-solid-svg-icons"; // 아이콘 임포트
+import { toast } from "react-toastify";
 
 function AuthModal({ show, onClose, setAuth }) {
   const [loading, setLoading] = useState(false); // 로딩 상태 관리
@@ -28,20 +29,50 @@ function AuthModal({ show, onClose, setAuth }) {
   });
   const [showPassword, setShowPassword] = useState(false); // 비밀번호 표시 상태
   const [isLogin, setIsLogin] = useState(true); // 로그인/회원가입 상태 관리
+  const [errors, setErrors] = useState({}); // 유효성 검사 에러 상태
 
-  // 입력값 변경 핸들러 (상태에 따라 loginData 또는 registerData 업데이트)
-  const handleChange = (e) => {
-    if (isLogin) {
-      setLoginData({
-        ...loginData,
-        [e.target.name]: e.target.value,
-      });
-    } else {
-      setRegisterData({
-        ...registerData,
-        [e.target.name]: e.target.value,
-      });
+  // 유효성 검사 함수
+  const validate = (name, value) => {
+    let error = "";
+
+    if (name === "username") {
+      if (!idLength(value)) {
+        error = "아이디는 4글자 이상, 12글자 이하로 입력해주세요.";
+      } else if (!onlyNumberAndEnglish(value)) {
+        error = "아이디는 영어 또는 숫자만 입력 가능합니다.";
+      }
+    } else if (name === "password") {
+      if (!strongPassword(value)) {
+        error = "비밀번호는 8자 이상, 영문, 숫자, 특수문자를 포함해야 합니다.";
+      }
+    } else if (name === "confirmPassword") {
+      if (!isMatch(value, registerData.password)) {
+        error = "비밀번호가 일치하지 않습니다.";
+      }
+    } else if (name === "phone_number") {
+      if (!value) {
+        error = "전화번호를 입력해주세요.";
+      } else if (value.length < 10) {
+        error = "전화번호 형식이 올바르지 않습니다.";
+      }
     }
+
+    return error;
+  };
+
+  // 입력값 변경 핸들러 (실시간 유효성 검사 포함)
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    if (isLogin) {
+      setLoginData((prev) => ({ ...prev, [name]: value }));
+    } else {
+      setRegisterData((prev) => ({ ...prev, [name]: value }));
+    }
+
+    // 실시간으로 유효성 검사 수행
+    const error = validate(name, value);
+    setErrors((prev) => ({ ...prev, [name]: error }));
   };
 
   // 비밀번호 표시 여부 토글
@@ -56,65 +87,36 @@ function AuthModal({ show, onClose, setAuth }) {
       .replace(/[^0-9]/g, "") // 숫자 이외의 문자 제거
       .replace(
         /(^02.{0}|^01.{1}|[0-9]{3,4})([0-9]{3,4})([0-9]{4})/g,
-        "$1-$2-$3" // 전화번호 형식 변환
-      );
+        "$1-$2-$3"
+      ); // 전화번호 형식 변환
   };
 
   /* 유효성 검증 함수 */
+  const idLength = (value) => value.length >= 4 && value.length <= 12; // id : 글자 수 제한 (4글자이상 ~ 12글자 이하)
+  const onlyNumberAndEnglish = (str) => /^[A-Za-z0-9][A-Za-z0-9]*$/.test(str); // id : 영어 또는 숫자만 가능
+  const strongPassword = (str) =>
+    /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/.test(str); // 비밀번호 : 8글자 이상, 영문, 숫자, 특수문자 사용
+  const isMatch = (password1, password2) => password1 === password2; // 비밀번호 확인: 비밀번호와 비밀번호 확인 일치
 
-  // id : 글자 수 제한 (4글자이상 ~ 12글자 이하)
-  const idLength = (value) => {
-    return value.length >= 4 && value.length <= 12;
-  };
-  // id : 영어 또는 숫자만 가능
-  const onlyNumberAndEnglish = (str) => {
-    return /^[A-Za-z0-9][A-Za-z0-9]*$/.test(str);
-  };
-
-  // 비밀번호 : 8글자 이상, 영문, 숫자, 특수문자 사용
-  const strongPassword = (str) => {
-    return /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/.test(
-      str
-    );
-  };
-
-  // 비밀번호 확인: 비밀번호와 비밀번호 확인 일치
-  const isMatch = (password1, password2) => {
-    return password1 === password2;
-  };
-
-  /* end 유효성 검증 함수 */
-
-  // 제출 핸들러 (상태에 따라 다른 데이터를 전송)
+  // 제출 핸들러
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 유효성 검사 (회원가입일 경우에만 수행)
+    // 최종 유효성 검사
+    const newErrors = {};
     if (!isLogin) {
-      if (!idLength(registerData.username)) {
-        return toast.error("아이디는 4글자 이상, 12글자 이하로 입력해주세요.");
+      for (const [name, value] of Object.entries(registerData)) {
+        const error = validate(name, value);
+        if (error) {
+          newErrors[name] = error;
+        }
       }
 
-      if (!onlyNumberAndEnglish(registerData.username)) {
-        return toast.error("아이디는 영어 또는 숫자만 입력 가능합니다.");
-      }
-
-      if (!strongPassword(registerData.password)) {
-        return toast.error(
-          "비밀번호는 8자 이상, 영문, 숫자, 특수문자를 포함해야 합니다."
-        );
-      }
-
-      if (!isMatch(registerData.password, registerData.confirmPassword)) {
-        return toast.error("비밀번호가 일치하지 않습니다.");
-      }
-
-      if (!registerData.phone_number) {
-        return toast.error("전화번호를 입력해주세요.");
-      }
-
-      if (registerData.phone_number.length < 10) {
-        return toast.error("전화번호 형식이 올바르지 않습니다.");
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+        const firstErrorField = Object.keys(newErrors)[0];
+        document.getElementsByName(firstErrorField)[0].focus();
+        return;
       }
     }
 
@@ -164,10 +166,15 @@ function AuthModal({ show, onClose, setAuth }) {
   return (
     <ModalOverlay>
       <ModalContainer>
-        <CloseButton onClick={onClose}>&times;</CloseButton>
+        <CloseButton onClick={onClose}>
+          <FontAwesomeIcon
+            icon={faCircleXmark}
+            size="lg"
+            style={{ color: "#0f0f0f" }}
+          />{" "}
+        </CloseButton>
         <h2>Makter</h2>
 
-        {/* 로딩 중일 때는 햄버거 로딩 컴포넌트를 보여줍니다 */}
         {loading ? (
           <LoadingBurger />
         ) : (
@@ -183,7 +190,11 @@ function AuthModal({ show, onClose, setAuth }) {
                 onChange={handleChange}
                 required
               />
+              {errors.username && (
+                <ErrorMessage>{errors.username}</ErrorMessage>
+              )}
             </InputWrapper>
+
             <InputWrapper>
               <FontAwesomeIcon icon={faLock} />
               <input
@@ -194,6 +205,10 @@ function AuthModal({ show, onClose, setAuth }) {
                 onChange={handleChange}
                 required
               />
+              {errors.password && (
+                <ErrorMessage>{errors.password}</ErrorMessage>
+              )}
+
               <PasswordToggleIcon onClick={togglePasswordVisibility}>
                 <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
               </PasswordToggleIcon>
@@ -212,10 +227,11 @@ function AuthModal({ show, onClose, setAuth }) {
                     onChange={handleChange}
                     required
                   />
-                  <PasswordToggleIcon onClick={togglePasswordVisibility}>
-                    <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
-                  </PasswordToggleIcon>
+                  {errors.confirmPassword && (
+                    <ErrorMessage>{errors.confirmPassword}</ErrorMessage>
+                  )}
                 </InputWrapper>
+
                 <InputWrapper>
                   <FontAwesomeIcon icon={faEnvelope} />
                   <input
@@ -238,6 +254,7 @@ function AuthModal({ show, onClose, setAuth }) {
                     onChange={handleChange}
                   />
                 </InputWrapper>
+
                 <InputWrapper>
                   <FontAwesomeIcon icon={faPhone} />
                   <input
@@ -245,10 +262,13 @@ function AuthModal({ show, onClose, setAuth }) {
                     name="phone_number"
                     placeholder="전화번호를 입력해주세요"
                     value={registerData.phone_number}
-                    onInput={onInputPhone} // 함수는 직접 참조
-                    maxLength={14} // 전화번호 형식에 맞게 최대 길이 제한
+                    onInput={onInputPhone}
+                    maxLength={14}
                     onChange={handleChange}
                   />
+                  {errors.phone_number && (
+                    <ErrorMessage>{errors.phone_number}</ErrorMessage>
+                  )}
                 </InputWrapper>
               </>
             )}
@@ -281,19 +301,22 @@ export default AuthModal;
 const InputWrapper = styled.div`
   position: relative;
   display: flex;
-  align-items: center;
+  flex-direction: column; /* 에러 메시지를 아래로 배치 */
+  align-items: start;
 
   input {
-    width: 100% !important; /* 우선순위를 높이기 위해 !important 사용 */
-    padding: 0.5rem 0.5rem 0.5rem 2.5rem !important;
-    font-size: 1.5rem !important;
-    border: 1px solid #ddd !important;
-    border-radius: 5px !important;
-    font-family: "GowunDodum-Regular";
+    width: 100%;
+    padding: 0.5rem 0.5rem 0.5rem 2.5rem;
+    font-size: 1.5rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-family: "GowunDodum-Regular", sans-serif;
   }
+
   svg {
     position: absolute;
     left: 10px;
+    top: 15px;
     color: #333;
     font-size: 1rem;
   }
@@ -301,7 +324,7 @@ const InputWrapper = styled.div`
 
 const PasswordToggleIcon = styled.span`
   position: absolute;
-  right: 10px; /* 오른쪽에 아이콘을 배치 */
+  right: 10px;
   cursor: pointer;
   color: #333;
   font-size: 1rem;
@@ -309,7 +332,7 @@ const PasswordToggleIcon = styled.span`
   svg {
     position: absolute;
     left: -25px;
-    top: -12px;
+    top: 10px;
     color: #333;
     font-size: 1.5rem;
   }
@@ -330,7 +353,7 @@ const ModalOverlay = styled.div`
 
 const ModalContainer = styled.div`
   max-width: 468px;
-  max-height: 668px;
+  max-height: 868px;
   width: 100%;
   height: 100%;
   padding: 2rem;
@@ -342,10 +365,10 @@ const ModalContainer = styled.div`
   position: relative;
   z-index: 1001;
   background: linear-gradient(#f0f0c3, #f0f0c3);
-
+  font-family: "GowunDodum-Regular";
   h2 {
     font-size: 38px;
-    font-family: "GowunDodum-Regular";
+    font-family: "GowunDodum-Regular", sans-serif;
   }
 
   a {
@@ -354,10 +377,11 @@ const ModalContainer = styled.div`
     line-height: 160%;
     color: #667380;
     text-decoration-line: underline;
-    font-family: "GowunDodum-Regular";
+    font-family: "GowunDodum-Regular", sans-serif;
     letter-spacing: -0.087px;
     text-align: right;
   }
+
   form {
     display: flex;
     flex-direction: column;
@@ -368,8 +392,8 @@ const ModalContainer = styled.div`
       font-size: 1.5rem;
       border: none;
       border-radius: 5px;
-      background: #e7e78b; /* 변경된 부분 */
-      font-family: "GowunDodum-Regular";
+      background: #e7e78b;
+      font-family: "GowunDodum-Regular", sans-serif;
       color: black;
       cursor: pointer;
       transition: background 0.3s;
@@ -387,4 +411,21 @@ const CloseButton = styled.span`
   right: 10px;
   font-size: 2rem;
   cursor: pointer;
+`;
+
+const ErrorMessage = styled.div`
+  display: flex;
+  align-items: center;
+  color: #d8000c;
+  background-color: #ffbaba;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  border-radius: 5px;
+  margin-top: 0.5rem;
+  font-family: "GowunDodum-Regular", sans-serif;
+  svg {
+    margin-right: 0.5rem;
+    font-size: 1rem;
+    color: #d8000c;
+  }
 `;

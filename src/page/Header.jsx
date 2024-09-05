@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { toast } from "react-toastify";
 import Potodance from "../components/Potodance";
 import ProfileModal from "../components/ProfileModal";
-import AuthModal from "../components/AuthModal";
+import AuthModal from "../components/User/AuthModal";
 
 const Header = ({ setAuth, isAuthenticated }) => {
   const [name, setName] = useState("");
