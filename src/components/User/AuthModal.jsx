@@ -99,8 +99,11 @@ function AuthModal({ show, onClose, setAuth }) {
   };
 
   /* 전화번호 인증 코드 전송 */
-  const sendVerificationCode = () => {
-    if (registerData.phone_number.length < 10) {
+  const sendVerificationCode = async () => {
+    // 전화번호에서 하이픈 제거
+    const cleanedPhoneNumber = registerData.phone_number.replace(/-/g, "");
+
+    if (cleanedPhoneNumber.length < 10) {
       setErrors((prev) => ({
         ...prev,
         phone_number: "올바른 전화번호를 입력해주세요.",
@@ -108,27 +111,73 @@ function AuthModal({ show, onClose, setAuth }) {
       return;
     }
 
-    const generatedCode = Math.floor(
-      100000 + Math.random() * 900000
-    ).toString(); // 랜덤 6자리 코드 생성
-    setGeneratedCode(generatedCode); // 서버에서 받은 코드 저장
-    setIsCodeSent(true); // 코드 전송 상태 업데이트
-    toast.success(`인증코드가 발송되었습니다! 인증코드: ${generatedCode}`); // 성공 메시지에 인증코드 포함
-  };
+    try {
+      const response = await fetch(
+        "https://makterback.fly.dev/api/v1/send-verification-code",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ phone_number: cleanedPhoneNumber }),
+        }
+      );
 
-  // 인증코드 확인
-  const verifyCode = () => {
-    if (verificationCode === generatedCode) {
-      setIsVerified(true); // 인증 성공 상태 업데이트
-      toast.success("전화번호 인증이 완료되었습니다!");
-    } else {
-      setErrors((prev) => ({
-        ...prev,
-        verificationCode: "인증코드가 올바르지 않습니다.",
-      }));
+      const parseRes = await response.json();
+      if (parseRes.resultCode === "S-1") {
+        setGeneratedCode(parseRes.verificationCode);
+        console.log("Generated code from server:", parseRes.verificationCode); // 인증코드 확인
+        setIsCodeSent(true); // 인증코드 전송 상태 업데이트
+        toast.success("인증코드가 발송되었습니다.");
+      } else {
+        setIsCodeSent(false); // 요청 실패 시 다시 활성화
+        toast.error("인증코드 발송 실패.");
+      }
+    } catch (error) {
+      setIsCodeSent(false); // 에러 시 다시 버튼을 활성화
+      toast.error("서버 오류 발생: " + error.message);
     }
   };
 
+  // 인증코드 확인
+  const verifyCode = async () => {
+    if (!verificationCode) {
+      setErrors((prev) => ({
+        ...prev,
+        verificationCode: "인증코드를 입력해주세요.",
+      }));
+      return;
+    }
+
+    try {
+      console.log("Generated code:", generatedCode); // 서버에서 받은 인증코드 확인
+      console.log("User input code:", verificationCode); // 사용자가 입력한 인증코드 확인
+
+      const response = await fetch(
+        "https://makterback.fly.dev/api/v1/verify-code",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            verificationCode: generatedCode,
+            inputCode: verificationCode,
+          }),
+        }
+      );
+
+      const parseRes = await response.json();
+      if (parseRes.resultCode === "S-1") {
+        setIsVerified(true); // 인증 성공 상태 업데이트
+        toast.success(parseRes.msg);
+      } else {
+        toast.error(parseRes.msg);
+      }
+    } catch (error) {
+      toast.error("서버 오류 발생: " + error.message);
+    }
+  };
   /* end 전화번호 인증 코드 전송 */
 
   /* 유효성 검증 함수 */
@@ -151,6 +200,9 @@ function AuthModal({ show, onClose, setAuth }) {
       return;
     }
 
+    // 전화번호에서 하이픈 제거
+    const cleanedPhoneNumber = registerData.phone_number.replace(/-/g, "");
+
     // 최종 유효성 검사
     const newErrors = {};
     if (!isLogin) {
@@ -169,6 +221,9 @@ function AuthModal({ show, onClose, setAuth }) {
       }
     }
 
+    // 여기서 registerData를 로그로 출력
+    console.log("Register Data:", registerData);
+
     // 유효성 검사가 통과하면 로딩 시작
     setLoading(true);
 
@@ -176,7 +231,10 @@ function AuthModal({ show, onClose, setAuth }) {
       ? "https://makterback.fly.dev/api/v1/login"
       : "https://makterback.fly.dev/api/v1/register";
 
-    const data = isLogin ? loginData : registerData;
+    const data = {
+      ...registerData,
+      phone_number: cleanedPhoneNumber, // 하이픈 제거된 전화번호로 서버에 전송
+    };
 
     try {
       const response = await fetch(endpoint, {
