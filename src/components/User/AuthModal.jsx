@@ -31,6 +31,13 @@ function AuthModal({ show, onClose, setAuth }) {
   const [isLogin, setIsLogin] = useState(true); // 로그인/회원가입 상태 관리
   const [errors, setErrors] = useState({}); // 유효성 검사 에러 상태
 
+  /* 인증 코드 관련 상태 */
+  const [isCodeSent, setIsCodeSent] = useState(false); // 인증코드 전송 여부
+  const [verificationCode, setVerificationCode] = useState(""); // 입력된 인증코드
+  const [isVerified, setIsVerified] = useState(false); // 인증 성공 여부
+  const [generatedCode, setGeneratedCode] = useState(""); // 서버에서 받은 인증코드
+  /* end 인증 코드 관련 상태 */
+
   // 유효성 검사 함수
   const validate = (name, value) => {
     let error = "";
@@ -91,6 +98,39 @@ function AuthModal({ show, onClose, setAuth }) {
       ); // 전화번호 형식 변환
   };
 
+  /* 전화번호 인증 코드 전송 */
+  const sendVerificationCode = () => {
+    if (registerData.phone_number.length < 10) {
+      setErrors((prev) => ({
+        ...prev,
+        phone_number: "올바른 전화번호를 입력해주세요.",
+      }));
+      return;
+    }
+
+    const generatedCode = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString(); // 랜덤 6자리 코드 생성
+    setGeneratedCode(generatedCode); // 서버에서 받은 코드 저장
+    setIsCodeSent(true); // 코드 전송 상태 업데이트
+    toast.success(`인증코드가 발송되었습니다! 인증코드: ${generatedCode}`); // 성공 메시지에 인증코드 포함
+  };
+
+  // 인증코드 확인
+  const verifyCode = () => {
+    if (verificationCode === generatedCode) {
+      setIsVerified(true); // 인증 성공 상태 업데이트
+      toast.success("전화번호 인증이 완료되었습니다!");
+    } else {
+      setErrors((prev) => ({
+        ...prev,
+        verificationCode: "인증코드가 올바르지 않습니다.",
+      }));
+    }
+  };
+
+  /* end 전화번호 인증 코드 전송 */
+
   /* 유효성 검증 함수 */
   const idLength = (value) => value.length >= 4 && value.length <= 12; // id : 글자 수 제한 (4글자이상 ~ 12글자 이하)
   const onlyNumberAndEnglish = (str) => /^[A-Za-z0-9][A-Za-z0-9]*$/.test(str); // id : 영어 또는 숫자만 가능
@@ -101,6 +141,15 @@ function AuthModal({ show, onClose, setAuth }) {
   // 제출 핸들러
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // 인증 여부 확인
+    if (!isVerified) {
+      setErrors((prev) => ({
+        ...prev,
+        verificationCode: "전화번호 인증을 완료해주세요.",
+      }));
+      return;
+    }
 
     // 최종 유효성 검사
     const newErrors = {};
@@ -169,7 +218,7 @@ function AuthModal({ show, onClose, setAuth }) {
         <CloseButton onClick={onClose}>
           <FontAwesomeIcon
             icon={faCircleXmark}
-            size="lg"
+            size="1xl"
             style={{ color: "#0f0f0f" }}
           />{" "}
         </CloseButton>
@@ -265,12 +314,49 @@ function AuthModal({ show, onClose, setAuth }) {
                     onInput={onInputPhone}
                     maxLength={14}
                     onChange={handleChange}
+                    required
                   />
                   {errors.phone_number && (
                     <ErrorMessage>{errors.phone_number}</ErrorMessage>
                   )}
+
+                  {/* 인증코드 보내기 버튼 */}
+                  <button
+                    type="button"
+                    onClick={sendVerificationCode}
+                    disabled={isCodeSent}
+                  >
+                    인증코드 받기
+                  </button>
                 </InputWrapper>
               </>
+            )}
+
+            {/* 인증코드 입력 필드 */}
+            {!isLogin && isCodeSent && (
+              <InputWrapper>
+                <FontAwesomeIcon icon={faLock} />
+                <input
+                  type="text"
+                  name="verificationCode"
+                  placeholder="인증코드를 입력해주세요"
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value)}
+                  required
+                />
+                {errors.verificationCode && (
+                  <ErrorMessage>{errors.verificationCode}</ErrorMessage>
+                )}
+
+                {/* 인증코드 확인 버튼 */}
+                <button
+                  type="button"
+                  onClick={verifyCode}
+                  disabled={isVerified}
+                >
+                  인증코드 확인
+                </button>
+              </InputWrapper>
             )}
 
             {isLogin ? (
@@ -283,7 +369,13 @@ function AuthModal({ show, onClose, setAuth }) {
               </>
             ) : (
               <>
-                <button type="submit">회원가입</button>
+                <FormButton
+                  type="submit"
+                  disabled={!isVerified}
+                  className={!isVerified ? "disabled" : ""}
+                >
+                  회원가입
+                </FormButton>
                 <button type="button" onClick={() => setIsLogin(true)}>
                   로그인으로 돌아가기
                 </button>
@@ -358,7 +450,6 @@ const ModalContainer = styled.div`
   height: 100%;
   padding: 2rem;
   border: 0px;
-  border-radius: 50px;
   box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
     rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
   text-align: center;
@@ -402,6 +493,30 @@ const ModalContainer = styled.div`
         background: white;
       }
     }
+  }
+`;
+
+const FormButton = styled.button`
+  padding: 0.5rem 0.5rem;
+  font-size: 1.5rem;
+  border: none;
+  border-radius: 5px;
+  background: #e7e78b;
+  font-family: "GowunDodum-Regular", sans-serif;
+  color: black;
+  cursor: pointer;
+  transition: background 0.3s;
+
+  &:hover {
+    background: white;
+  }
+
+  // 비활성화 상태일 때의 스타일 추가
+  &.disabled {
+    background: #ccc; /* 회색 배경 */
+    color: #666; /* 글자색 흐리게 */
+    cursor: not-allowed; /* 커서 기본으로 변경 */
+    pointer-events: none; /* 클릭 불가 */
   }
 `;
 
