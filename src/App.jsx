@@ -35,7 +35,6 @@ function App() {
     }
   }, [mapMoveFunction]);
 
-  // App component useEffect
   useEffect(() => {
     const checkSession = async () => {
       try {
@@ -43,24 +42,25 @@ function App() {
           "https://makterback.fly.dev/api/v1/check-session",
           {
             method: "GET",
-            credentials: "include", // 세션 쿠키 포함
+            credentials: "include",
           }
         );
-        const result = await response.json();
 
-        if (result.isAuthenticated) {
-          setIsAuthenticated(true); // 로그인 상태 유지
-        } else {
-          setIsAuthenticated(false); // 로그아웃 처리
+        if (response.status === 401) {
+          throw new Error("Unauthorized");
         }
+
+        const data = await response.json();
+        console.log("Session Data:", data); // 세션 데이터 로그로 출력
+        setIsAuthenticated(true); // 세션이 유효하면 인증 상태를 true로 설정
       } catch (error) {
-        console.error("세션 체크 오류:", error);
-        setIsAuthenticated(false);
+        console.error("세션 확인 중 오류 발생:", error);
+        setIsAuthenticated(false); // 세션이 없거나 오류가 발생한 경우 인증 상태 false
       }
     };
 
-    checkSession(); // 첫 로드 시 한 번만 세션을 체크
-  }, []);
+    checkSession(); // 세션 체크 함수 호출
+  }, []); // 빈 배열을 의존성으로 하여 첫 렌더링 시 세션 체크 실행
 
   const handleMapMove = (latitude, longitude) => {
     console.log("handleMapMove called with:", latitude, longitude);

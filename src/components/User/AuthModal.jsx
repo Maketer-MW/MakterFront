@@ -191,8 +191,12 @@ function AuthModal({ show, onClose, setAuth }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    console.log("handleSubmit executed"); // 로그인 버튼 클릭 시 이 로그가 찍히는지 확인
+    console.log("isLogin:", isLogin); // 로그인 상태 확인
+    console.log("Login Data:", loginData); // 로그인 데이터 확인
+
     // 인증 여부 확인
-    if (!isVerified) {
+    if (!isLogin && !isVerified) {
       setErrors((prev) => ({
         ...prev,
         verificationCode: "전화번호 인증을 완료해주세요.",
@@ -214,6 +218,8 @@ function AuthModal({ show, onClose, setAuth }) {
       }
 
       if (Object.keys(newErrors).length > 0) {
+        console.log("Validation errors:", newErrors);
+
         setErrors(newErrors);
         const firstErrorField = Object.keys(newErrors)[0];
         document.getElementsByName(firstErrorField)[0].focus();
@@ -221,8 +227,8 @@ function AuthModal({ show, onClose, setAuth }) {
       }
     }
 
-    // 여기서 registerData를 로그로 출력
     console.log("Register Data:", registerData);
+    console.log("Sending login request:", loginData);
 
     // 유효성 검사가 통과하면 로딩 시작
     setLoading(true);
@@ -231,10 +237,15 @@ function AuthModal({ show, onClose, setAuth }) {
       ? "https://makterback.fly.dev/api/v1/login"
       : "https://makterback.fly.dev/api/v1/register";
 
-    const data = {
-      ...registerData,
-      phone_number: cleanedPhoneNumber, // 하이픈 제거된 전화번호로 서버에 전송
-    };
+    const data = isLogin
+      ? loginData
+      : {
+          ...registerData,
+          phone_number: cleanedPhoneNumber, // 하이픈 제거된 전화번호로 서버에 전송
+        };
+
+    console.log("API Endpoint:", endpoint); // API 엔드포인트 확인
+    console.log("Request Payload:", data); // 전송될 데이터 확인
 
     try {
       const response = await fetch(endpoint, {
@@ -276,11 +287,13 @@ function AuthModal({ show, onClose, setAuth }) {
         <CloseButton onClick={onClose}>
           <FontAwesomeIcon
             icon={faCircleXmark}
-            size="1xl"
+            size="sm"
             style={{ color: "#0f0f0f" }}
           />{" "}
         </CloseButton>
-        <h2>Makter</h2>
+        <ModalHeader>
+          <Title>Makter</Title>
+        </ModalHeader>
 
         {loading ? (
           <LoadingBurger />
@@ -296,6 +309,7 @@ function AuthModal({ show, onClose, setAuth }) {
                 value={isLogin ? loginData.username : registerData.username}
                 onChange={handleChange}
                 required
+                autoComplete="username" // 자동 완성 속성 추가
               />
               {errors.username && (
                 <ErrorMessage>{errors.username}</ErrorMessage>
@@ -311,6 +325,7 @@ function AuthModal({ show, onClose, setAuth }) {
                 value={isLogin ? loginData.password : registerData.password}
                 onChange={handleChange}
                 required
+                autoComplete={isLogin ? "current-password" : "new-password"} // 자동 완성 속성 추가
               />
               {errors.password && (
                 <ErrorMessage>{errors.password}</ErrorMessage>
@@ -419,7 +434,7 @@ function AuthModal({ show, onClose, setAuth }) {
 
             {isLogin ? (
               <>
-                <a href="">비밀번호 재설정</a>
+                <a href="#">비밀번호 재설정</a>
                 <button type="submit">로그인</button>
                 <button type="button" onClick={() => setIsLogin(false)}>
                   회원가입
@@ -448,6 +463,27 @@ function AuthModal({ show, onClose, setAuth }) {
 
 export default AuthModal;
 
+const Logo = styled.img`
+  width: 60px; /* 원하는 크기로 이미지 조정 */
+  height: 60px; /* 고정된 크기 */
+  margin-bottom: -20px; /* 로고와 텍스트 간격을 조정 */
+`;
+
+const ModalHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+`;
+
+const Title = styled.h2`
+  font-size: 2.5rem;
+  font-family: "GowunDodum-Regular", sans-serif;
+  color: black;
+  margin-top: 0.5rem;
+  letter-spacing: 2px;
+`;
 const InputWrapper = styled.div`
   position: relative;
   display: flex;
@@ -503,9 +539,8 @@ const ModalOverlay = styled.div`
 
 const ModalContainer = styled.div`
   max-width: 468px;
-  max-height: 868px;
   width: 100%;
-  height: 100%;
+
   padding: 2rem;
   border: 0px;
   box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
@@ -515,10 +550,6 @@ const ModalContainer = styled.div`
   z-index: 1001;
   background: linear-gradient(#f0f0c3, #f0f0c3);
   font-family: "GowunDodum-Regular";
-  h2 {
-    font-size: 38px;
-    font-family: "GowunDodum-Regular", sans-serif;
-  }
 
   a {
     font-size: 24px;
