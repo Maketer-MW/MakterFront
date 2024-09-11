@@ -255,7 +255,7 @@ function AuthModal({ show, onClose, setAuth }) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
-        credentials: "include",
+        credentials: "include", // 세션 쿠키 포함
       });
 
       const parseRes = await response.json();
@@ -263,7 +263,6 @@ function AuthModal({ show, onClose, setAuth }) {
 
       if (parseRes.resultCode === "S-1") {
         if (isLogin) {
-          localStorage.setItem("sessionId", parseRes.sessionId);
           setAuth(true);
           toast.success("로그인 성공!");
           onClose();

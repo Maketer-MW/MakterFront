@@ -7,12 +7,42 @@ import { faSignInAlt, faUserCircle } from "@fortawesome/free-solid-svg-icons";
 import Potodance from "../components/Potodance";
 import ProfileModal from "../components/ProfileModal";
 import AuthModal from "../components/User/AuthModal";
+import { useEffect } from "react";
 
 // Header Component
 const Header = ({ setAuth, isAuthenticated }) => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false); // Toggle for dropdown
+
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const response = await fetch(
+          "https://makterback.fly.dev/api/v1/check-session",
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
+
+        const parseRes = await response.json();
+
+        if (parseRes.isAuthenticated) {
+          setAuth(true); // 세션 유효, 로그인 상태 유지
+          toast.success("로그인 상태가 유지되었습니다.");
+        } else {
+          setAuth(false); // 세션 만료, 로그아웃 상태
+          toast.error("세션이 만료되었습니다. 다시 로그인해주세요.");
+        }
+      } catch (err) {
+        console.error("세션 확인 중 오류 발생:", err.message);
+        setAuth(false);
+        toast.error("세션 확인 중 오류 발생.");
+      }
+    };
+    checkSession();
+  }, [setAuth]);
 
   const logoutSuccessfully = () => toast("로그아웃 성공!");
 
@@ -77,10 +107,7 @@ const Header = ({ setAuth, isAuthenticated }) => {
             {isAuthenticated ? (
               <DropdownHeader>
                 <ProfileImageCircle>
-                  <img
-                    src="profile-image-url" // Replace with the actual user image
-                    alt="Profile"
-                  />
+                  <FontAwesomeIcon icon={faUserCircle} size="2x" />
                 </ProfileImageCircle>
                 <UserInfo>
                   <UserName>사용자 이름</UserName>
@@ -102,15 +129,26 @@ const Header = ({ setAuth, isAuthenticated }) => {
             <DropdownItems>
               {isAuthenticated ? (
                 <>
+                  <DropdownItem>
+                    <img
+                      src="public/images/Users/archive.png"
+                      alt="https://www.flaticon.com/kr/free-icon/settings_3171061?term=%EC%84%A4%EC%A0%95&page=1&position=4&origin=search&related_id=3171061"
+                    />{" "}
+                    My page
+                  </DropdownItem>
                   <DropdownItem onClick={() => setShowProfileModal(true)}>
-                    <FontAwesomeIcon icon={faUserCircle} />
+                    <img
+                      src="public/images/Users/setting.png"
+                      alt="https://www.flaticon.com/kr/free-icon/setting_11539964?term=%EC%84%A4%EC%A0%95&page=1&position=33&origin=search&related_id=11539964"
+                    />{" "}
                     계정 설정
                   </DropdownItem>
-                  <DropdownItem>
-                    <FontAwesomeIcon icon={faUserCircle} />내 채널
-                  </DropdownItem>
+
                   <DropdownItem onClick={logout}>
-                    <FontAwesomeIcon icon={faSignInAlt} />
+                    <img
+                      src="public/images/Users/logout.png"
+                      alt="https://www.flaticon.com/kr/free-icon/setting_11539964?term=%EC%84%A4%EC%A0%95&page=1&position=33&origin=search&related_id=11539964"
+                    />{" "}
                     로그아웃
                   </DropdownItem>
                 </>
@@ -289,7 +327,8 @@ const DropdownItem = styled.div`
   border-bottom: 1px solid #eee;
   color: #333;
 
-  svg {
+  img {
+    width: 18px;
     margin-right: 10px;
   }
 
