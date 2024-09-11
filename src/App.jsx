@@ -13,6 +13,8 @@ import MainReviewPages from "./page/Review/MainReviewPages";
 import EditPage from "./components/Community/EditPage";
 import DetailPost from "./components/Community/DetailPost";
 import FoodIndex from "./components/FoodIndex"; // FoodIndex 임포트 추가
+import ResetPasswordPage from "./components/User/ResetPassword"; // 경로에 맞게 수정
+
 import styled from "styled-components"; // styled-components 임포트 추가
 import ServiceFoods from "./components/ServiceFoods";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -108,6 +110,7 @@ function App() {
         <Route path="/category/:category" element={<CategoryReviewHN />} />
         <Route path="/EditPage/:postId" element={<EditPageHN />} />
         <Route path="/Post/:postId" element={<DetailPostPageHN />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
       </Routes>
     </BrowserRouter>
   );

@@ -14,6 +14,7 @@ import {
   faCircleXmark,
 } from "@fortawesome/free-solid-svg-icons"; // 아이콘 임포트
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
 
 function AuthModal({ show, onClose, setAuth }) {
   const [loading, setLoading] = useState(false); // 로딩 상태 관리
@@ -434,7 +435,7 @@ function AuthModal({ show, onClose, setAuth }) {
 
             {isLogin ? (
               <>
-                <a href="#">비밀번호 재설정</a>
+                <Link to="/reset-password">비밀번호 재설정</Link>
                 <button type="submit">로그인</button>
                 <button type="button" onClick={() => setIsLogin(false)}>
                   회원가입
@@ -462,12 +463,6 @@ function AuthModal({ show, onClose, setAuth }) {
 }
 
 export default AuthModal;
-
-const Logo = styled.img`
-  width: 60px; /* 원하는 크기로 이미지 조정 */
-  height: 60px; /* 고정된 크기 */
-  margin-bottom: -20px; /* 로고와 텍스트 간격을 조정 */
-`;
 
 const ModalHeader = styled.div`
   display: flex;
