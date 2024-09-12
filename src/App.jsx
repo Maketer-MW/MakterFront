@@ -14,6 +14,7 @@ import EditPage from "./components/Community/EditPage";
 import DetailPost from "./components/Community/DetailPost";
 import FoodIndex from "./components/FoodIndex"; // FoodIndex 임포트 추가
 import ResetPasswordPage from "./components/User/ResetPassword"; // 경로에 맞게 수정
+import Mypage from "./components/User/Mypage";
 
 import styled from "styled-components"; // styled-components 임포트 추가
 import ServiceFoods from "./components/ServiceFoods";
@@ -27,9 +28,34 @@ function App() {
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setAuth] = useState(false);
   const [filteredRestaurants, setFilteredRestaurants] = useState([]);
   const [restaurants, setRestaurants] = useState([]);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const response = await fetch(
+          "https://makterback.fly.dev/api/v1/check-session",
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
+
+        const result = await response.json();
+        if (result.isAuthenticated) {
+          setAuth(true);
+        } else {
+          setAuth(false);
+        }
+      } catch (error) {
+        setAuth(false);
+      }
+    };
+
+    checkSession(); // 새로고침 시 세션 확인
+  }, []);
 
   useEffect(() => {
     if (mapMoveFunction) {
@@ -57,7 +83,7 @@ function App() {
   return (
     <BrowserRouter>
       <ToastContainer position="top-right" autoClose={5000} />
-      <Header setAuth={setIsAuthenticated} isAuthenticated={isAuthenticated} />
+      <Header isAuthenticated={isAuthenticated} setAuth={setAuth} />
       <Routes>
         <Route path="/" element={<MainHN />} />
         <Route
@@ -83,6 +109,7 @@ function App() {
         <Route path="/category/:category" element={<CategoryReviewHN />} />
         <Route path="/EditPage/:postId" element={<EditPageHN />} />
         <Route path="/Post/:postId" element={<DetailPostPageHN />} />
+        <Route path="/mypage" element={<MypageHN />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
       </Routes>
     </BrowserRouter>
@@ -179,6 +206,11 @@ const DetailPostPageHN = () => (
   </div>
 );
 
+const MypageHN = () => (
+  <div>
+    <Mypage />
+  </div>
+);
 const Modal = styled.div`
   position: fixed;
   top: 10%;
