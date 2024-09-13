@@ -176,7 +176,6 @@ const HeaderContainer = styled.div`
 `;
 
 const LogoContainer = styled(Link)`
-  width: 200px;
   display: flex;
   align-items: center;
   cursor: pointer;
