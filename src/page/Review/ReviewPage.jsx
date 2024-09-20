@@ -25,7 +25,7 @@ function ReviewPage() {
   const { id } = useParams();
 
   const [reviews, setReviews] = useState([]);
-  const [isActive, setIsActive] = useState(true);
+  const [isActive, setIsActive] = useState(false);
 
   const handleToggle = () => {
     setIsActive(!isActive);
