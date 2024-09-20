@@ -67,11 +67,13 @@ function ReviewPage() {
     lastId.current++;
 
     // 서버로 데이터 전송
-    fetch("https://makterback.fly.dev/api/v1/reviews", {
+    fetch(`https://makterback.fly.dev/api/v1/reviews`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include", // 세션 쿠키 포함 (세션 기반 인증 시 필요)
+
       body: JSON.stringify({
         restaurant_id: id, // 레스토랑 ID
         contents: content,
@@ -93,15 +95,22 @@ function ReviewPage() {
 
   const OnDelete = async (reviewId) => {
     try {
+      console.log("Attempting to delete review with ID:", reviewId); // 삭제 요청 전 ID 확인
       const response = await fetch(
         `https://makterback.fly.dev/api/v1/reviews/${reviewId}`,
         {
           method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include", // 세션 쿠키 포함 (세션 기반 인증 시 필요)
         }
       );
       if (!response.ok) {
         throw new Error("Failed to delete review");
       }
+
+      console.log("Review deleted successfully");
       // 삭제 성공 시 화면에서도 즉시 업데이트
       fetchReviews(id); // 리뷰 작성 후에 목록 갱신
     } catch (error) {

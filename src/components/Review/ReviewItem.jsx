@@ -31,11 +31,11 @@ function ReviewItem({ review, onDelete }) {
 
   const reviewDeleteHandler = (event) => {
     event.preventDefault();
+    console.log("Deleting review with ID:", review_id); // 삭제 요청 전에 ID 확인
     setIsClicked(true);
     setTimeout(() => {
       setIsClicked(false);
     }, 500);
-    // 삭제 로직을 여기에 추가하세요
     onDelete(review_id);
   };
 

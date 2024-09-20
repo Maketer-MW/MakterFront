@@ -21,9 +21,8 @@ function WriteReview({ onSubmit }) {
 
   return (
     <WriteReviewContainer>
-      <BugerBox>
-        <Title>리뷰 작성</Title>
-      </BugerBox>
+      <Title>리뷰 작성</Title>
+
       <RatingContainer>
         <RatingLabel>별점</RatingLabel>
         <RatingStars rating={rating} onRate={setRating} />
