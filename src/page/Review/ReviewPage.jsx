@@ -26,6 +26,15 @@ function ReviewPage() {
 
   const [reviews, setReviews] = useState([]);
   const [isActive, setIsActive] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // Check login status - This is just a placeholder; replace with your actual login check logic
+    const userToken = localStorage.getItem("userToken"); // Example: Check for a token
+    setIsLoggedIn(!!userToken); // Set to true if token exists
+
+    fetchReviews(restranutInfo.id);
+  }, [restranutInfo.id]);
 
   const handleToggle = () => {
     setIsActive(!isActive);
@@ -55,6 +64,7 @@ function ReviewPage() {
   const lastId = useRef(4);
 
   const onSubmit = (username, content, hashtags, rating) => {
+    if (!isLoggedIn) return;
     const updateReviews = reviews.concat({
       id: lastId.current,
       username,
@@ -171,7 +181,20 @@ function ReviewPage() {
         </ContentsContainer>
         <ReviewContainer>
           {isActive ? (
-            <WriteReview onSubmit={onSubmit} />
+            isLoggedIn ? (
+              <WriteReview onSubmit={onSubmit} />
+            ) : (
+              <Overlay>
+                <OverlayContent>
+                  <p>
+                    로그인이 필요합니다. 로그인 후 리뷰를 작성할 수 있습니다.
+                  </p>
+                  <LoginButton onClick={() => alert("로그인 페이지로 이동")}>
+                    로그인
+                  </LoginButton>
+                </OverlayContent>
+              </Overlay>
+            )
           ) : (
             <ReviewList reviews={reviews} onDelete={OnDelete} />
           )}
@@ -356,4 +379,44 @@ const InfoText = styled.span`
   font-size: 16px; /* 텍스트 크기 조절 */
   font-weight: 600;
   color: #333; /* 텍스트 색상 조절 */
+`;
+
+const Overlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6); // Blurred background effect
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+
+  p {
+    font-family: "GowunDodum-Regular";
+    font-size: 18px;
+  }
+`;
+
+const OverlayContent = styled.div`
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+`;
+
+const LoginButton = styled.button`
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: #f4ce14;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: "GowunDodum-Regular";
+
+  &:hover {
+    background-color: #f0f0c3;
+  }
 `;
