@@ -1,3 +1,4 @@
+// src/pages/ReviewPage.jsx
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
@@ -18,21 +19,17 @@ import "react-device-frameset/styles/marvel-devices.min.css";
 import { useLocation } from "react-router-dom";
 import { faUtensils } from "@fortawesome/free-solid-svg-icons";
 import { faBurger } from "@fortawesome/free-solid-svg-icons";
+import LoginRequiredOverlay from "../../components/LoginRequiredOverlay";
 
-function ReviewPage() {
+function ReviewPage({ isAuthenticated }) {
   const location = useLocation();
   const restranutInfo = { ...location.state };
   const { id } = useParams();
 
   const [reviews, setReviews] = useState([]);
   const [isActive, setIsActive] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    // Check login status - This is just a placeholder; replace with your actual login check logic
-    const userToken = localStorage.getItem("userToken"); // Example: Check for a token
-    setIsLoggedIn(!!userToken); // Set to true if token exists
-
     fetchReviews(restranutInfo.id);
   }, [restranutInfo.id]);
 
@@ -64,7 +61,8 @@ function ReviewPage() {
   const lastId = useRef(4);
 
   const onSubmit = (username, content, hashtags, rating) => {
-    if (!isLoggedIn) return;
+    if (!isAuthenticated) return;
+
     const updateReviews = reviews.concat({
       id: lastId.current,
       username,
@@ -181,19 +179,10 @@ function ReviewPage() {
         </ContentsContainer>
         <ReviewContainer>
           {isActive ? (
-            isLoggedIn ? (
+            isAuthenticated ? (
               <WriteReview onSubmit={onSubmit} />
             ) : (
-              <Overlay>
-                <OverlayContent>
-                  <p>
-                    로그인이 필요합니다. 로그인 후 리뷰를 작성할 수 있습니다.
-                  </p>
-                  <LoginButton onClick={() => alert("로그인 페이지로 이동")}>
-                    로그인
-                  </LoginButton>
-                </OverlayContent>
-              </Overlay>
+              <LoginRequiredOverlay />
             )
           ) : (
             <ReviewList reviews={reviews} onDelete={OnDelete} />

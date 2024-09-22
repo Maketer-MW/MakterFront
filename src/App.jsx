@@ -102,8 +102,14 @@ function App() {
         />
         <Route path="/service" element={<ServiceHN />} />
         <Route path="/servicefoods" element={<ServiceFoodHN />} />
-        <Route path="/review" element={<FullReviewHN />} />
-        <Route path="/review/:id" element={<ReviewHN />} />
+        <Route
+          path="/review"
+          element={<FullReviewHN isAuthenticated={isAuthenticated} />}
+        />
+        <Route
+          path="/review/:id"
+          element={<ReviewHN isAuthenticated={isAuthenticated} />}
+        />
         <Route path="/MainListPage" element={<CommunityListHN />} />
         <Route path="/MainWritePage" element={<CommunityWriteHN />} />
         <Route path="/category/:category" element={<CategoryReviewHN />} />
@@ -122,15 +128,15 @@ const MainHN = () => (
   </div>
 );
 
-const ReviewHN = () => (
+const ReviewHN = ({ isAuthenticated }) => (
   <div>
-    <ReviewPage />
+    <ReviewPage isAuthenticated={isAuthenticated} />
   </div>
 );
 
-const FullReviewHN = () => (
+const FullReviewHN = ({ isAuthenticated }) => (
   <div>
-    <MainReviewPages />
+    <MainReviewPages isAuthenticated={isAuthenticated} />
   </div>
 );
 
