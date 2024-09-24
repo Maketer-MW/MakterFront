@@ -16,7 +16,7 @@ const FoodBox = ({ handleMapMove }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("https://makterbackend.fly.dev/api/v1/restaurants")
+    fetch("https://makterback.fly.dev/api/v1/restaurants")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch data");
@@ -39,7 +39,7 @@ const FoodBox = ({ handleMapMove }) => {
   useEffect(() => {
     if (selectedRestaurantId) {
       fetch(
-        `https://makterbackend.fly.dev/api/v1/restaurants/${selectedRestaurantId}`
+        `https://makterback.fly.dev/api/v1/restaurants/${selectedRestaurantId}`
       )
         .then((response) => {
           if (!response.ok) {
@@ -49,6 +49,7 @@ const FoodBox = ({ handleMapMove }) => {
         })
         .then((data) => {
           setSelectedRestaurant(data.data);
+          console.log(data.data);
           setIsModalOpen(true);
         })
         .catch((error) => {

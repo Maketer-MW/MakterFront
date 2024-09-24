@@ -110,7 +110,10 @@ function App() {
           path="/review/:id"
           element={<ReviewHN isAuthenticated={isAuthenticated} />}
         />
-        <Route path="/MainListPage" element={<CommunityListHN />} />
+        <Route
+          path="/MainListPage"
+          element={<CommunityListHN isAuthenticated={isAuthenticated} />}
+        />
         <Route path="/MainWritePage" element={<CommunityWriteHN />} />
         <Route path="/category/:category" element={<CategoryReviewHN />} />
         <Route path="/EditPage/:postId" element={<EditPageHN />} />
@@ -182,9 +185,9 @@ const ServiceFoodHN = () => (
   </div>
 );
 
-const CommunityListHN = () => (
+const CommunityListHN = ({ isAuthenticated }) => (
   <div>
-    <MainListPage />
+    <MainListPage isAuthenticated={isAuthenticated} />
   </div>
 );
 

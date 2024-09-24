@@ -34,6 +34,7 @@ function FoodDetail({ selectedRestaurant, handleMapMove }) {
         opening_hours: `${selectedRestaurant.opening_hours}`,
         rating: `${selectedRestaurant.rating}`,
         image: `${selectedRestaurant.image}`,
+        category: `${selectedRestaurant.category}`,
       },
     });
   };

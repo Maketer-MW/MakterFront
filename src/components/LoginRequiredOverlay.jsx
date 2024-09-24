@@ -1,11 +1,13 @@
-// src/components/LoginRequiredOverlay.jsx
-
 import React, { useState } from "react";
 import styled from "styled-components";
 import AuthModal from "./User/AuthModal";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import LoadingBurger from "./LoadingBurger"; // 로딩 컴포넌트 임포트
 
 const LoginRequiredOverlay = ({ onLoginSuccess }) => {
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // 로딩 상태 추가
 
   const handleLoginClick = () => {
     setShowAuthModal(true);
@@ -17,18 +19,24 @@ const LoginRequiredOverlay = ({ onLoginSuccess }) => {
 
   const handleLoginSuccess = () => {
     closeAuthModal(); // 모달 닫기
-    window.location.reload(); // 브라우저 새로고침
+    setIsLoading(true); // 로딩 시작
+    toast.success{
+      onClose: () => {
+        setIsLoading(false); // 로딩 종료
+        window.location.reload(); // 토스트 메시지가 닫힌 후 새로고침
+      },
+    });
   };
 
   return (
     <>
+      {isLoading && <LoadingBurger />} {/* 로딩 컴포넌트 표시 */}
       <Overlay>
         <OverlayContent>
           <p>로그인이 필요합니다. 로그인 후 리뷰를 작성할 수 있습니다.</p>
           <LoginButton onClick={handleLoginClick}>로그인</LoginButton>
         </OverlayContent>
       </Overlay>
-
       {showAuthModal && (
         <AuthModal
           show={showAuthModal}
@@ -36,6 +44,7 @@ const LoginRequiredOverlay = ({ onLoginSuccess }) => {
           setAuth={handleLoginSuccess}
         />
       )}
+      <ToastContainer position="top-right" />
     </>
   );
 };

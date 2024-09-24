@@ -4,16 +4,22 @@ import styled from "styled-components";
 import { DeviceFrameset } from "react-device-frameset";
 import ListPage from "../../components/Community/ListPage";
 import ListSerchPage from "../../components/Community/ListSerchPage";
+import LoginRequiredOverlay from "../../components/LoginRequiredOverlay";
 
-function MainListpage() {
+function MainListpage({ isAuthenticated }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [showOverlay, setShowOverlay] = useState(false); // Overlay 표시 상태 추가
+
   const navigate = useNavigate();
 
   const handleRoute = () => {
-    navigate("/MainWritePage");
+    if (isAuthenticated) {
+      navigate("/MainWritePage"); // 로그인 상태라면 글쓰기 페이지로 이동
+    } else {
+      setShowOverlay(true); // 로그인되지 않은 경우 Overlay 표시
+    }
   };
-
   const handleSearch = async () => {
     if (!searchQuery.trim()) {
       setSearchResults([]); // 공백일 때 검색 결과를 빈 배열로 설정
@@ -37,6 +43,7 @@ function MainListpage() {
   };
   return (
     <MainContainer>
+      {showOverlay && <LoginRequiredOverlay />}
       <ListPageWrapper>
         <DeviceFrameset
           device="iPad Mini"

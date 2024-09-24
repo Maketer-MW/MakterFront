@@ -582,7 +582,7 @@ const Main1 = () => {
                     <Img src="/images/2/review3.png" className="review3" />
                   </Inner>
                   <Link className="link link-01" href="/review">
-                    리뷰 보기
+                    맛집 탐색
                   </Link>
                 </A>
               </Panel>
