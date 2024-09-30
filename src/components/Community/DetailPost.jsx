@@ -12,7 +12,7 @@ function DetailPost() {
 
   useEffect(() => {
     // 게시물 가져오기
-    fetch(`https://makterbackend.fly.dev/api/v1/post/${postId}`)
+    fetch(`https://makterback.fly.dev/api/v1/post/${postId}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch post");

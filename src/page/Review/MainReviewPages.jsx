@@ -110,28 +110,19 @@ function ReviewListPage() {
           width="100%"
           height="75%"
         >
-          <GreenContainer>
-            <FontAwesomeIcon icon={faUtensils} size="2x" />
-          </GreenContainer>
-
-          <CategoriesGridContainer>
-            <CategoriesGrid>
-              {categories.map((category, index) => (
-                <CategoryContainer key={index}>
-                  <CategoryButton
-                    onClick={() => handleCategorySelect(category)}
-                    active={selectedCategory === category}
-                  >
-                    <FontAwesomeIcon
-                      icon={getCategoryIcon(category)}
-                      size="2x"
-                    />
-                    <CategoryLabel>{category}</CategoryLabel>
-                  </CategoryButton>
-                </CategoryContainer>
-              ))}
-            </CategoriesGrid>
-          </CategoriesGridContainer>
+          <CategoryContainer>
+            {categories.map((category, index) => (
+              <CategoryCard
+                key={index}
+                onClick={() => handleCategorySelect(category)}
+                active={selectedCategory === category}
+              >
+                <FontAwesomeIcon icon={getCategoryIcon(category)} size="2x" />
+                <CategoryLabel>{category}</CategoryLabel>
+              </CategoryCard>
+            ))}
+          </CategoryContainer>
+          <CategoriesGridContainer></CategoriesGridContainer>
         </DeviceFrameset>
       </ReviewPageWrapper>
     </ReviewPage>
@@ -148,38 +139,9 @@ const ReviewPage = styled.div`
 const ReviewPageWrapper = styled.div`
   max-width: 1000px;
   height: 1200px;
-
   margin: 0 auto;
   padding: 20px;
   gap: 100px;
-`;
-
-const GreenContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 80px;
-  background-color: #e9e5a9;
-  border-radius: 0 0 30px 30px;
-`;
-
-const SearchBarContainer = styled.div`
-  display: flex;
-  align-items: center;
-  width: 60%;
-  margin-bottom: 20px;
-  margin-left: 20%;
-  margin-top: 30px;
-`;
-
-const SearchBar = styled.input`
-  width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  border: none;
-  border-radius: 20px;
-  background-color: #fff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 `;
 
 const CategoriesGridContainer = styled.div`
@@ -189,38 +151,35 @@ const CategoriesGridContainer = styled.div`
   margin: 15px 0;
 `;
 
-const CategoriesGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-`;
-
 const CategoryContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-top: 50px;
+  box-shadow: rgba(17, 17, 26, 0.1) 0px 4px 16px,
+    rgba(17, 17, 26, 0.1) 0px 8px 24px, rgba(17, 17, 26, 0.1) 0px 16px 56px;
+  border-radius: 60px 60px 0 0;
+  padding: 20px;
+  margin: 20px;
 `;
 
-const CategoryButton = styled.button`
+const CategoryCard = styled.button`
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 15px;
-  border: none;
-  border: solid 4px;
-  border-radius: 20px;
-  background-color: ${({ active }) => (active ? "#e7f1c9" : "#f0f0f0")};
-  color: ${({ active }) => (active ? "#fff" : "#000")};
+  border: 0px;
+  background-color: #fff;
+
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s;
-  width: 150px;
-  height: 150px;
+  width: 100px;
+  height: 100px;
+  margin-right: 15px;
 
   &:hover {
     background-color: ${({ active }) => (active ? "#e7f1c9" : " #e9e5a9")};
-    color: ${({ active }) => (active ? "#fff" : "#000")};
-    transform: translateY(-5px);
+    transform: translateY(10px);
   }
 `;
 
@@ -229,4 +188,5 @@ const CategoryLabel = styled.span`
   font-size: 18px;
   font-weight: bold;
   text-align: center;
+  font-family: "GowunDodum-Regular";
 `;

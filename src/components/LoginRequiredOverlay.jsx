@@ -20,7 +20,7 @@ const LoginRequiredOverlay = ({ onLoginSuccess }) => {
   const handleLoginSuccess = () => {
     closeAuthModal(); // 모달 닫기
     setIsLoading(true); // 로딩 시작
-    toast.success{
+    toast.success("로그인 성공!", {
       onClose: () => {
         setIsLoading(false); // 로딩 종료
         window.location.reload(); // 토스트 메시지가 닫힌 후 새로고침

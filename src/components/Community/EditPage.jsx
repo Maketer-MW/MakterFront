@@ -16,7 +16,7 @@ function EditPage() {
   };
   useEffect(() => {
     if (postId) {
-      fetch(`https://makterbackend.fly.dev/api/v1/post/${postId}`)
+      fetch(`https://makterback.fly.dev/api/v1/post/${postId}`)
         .then((response) => {
           if (!response.ok) {
             throw new Error("게시물 데이터를 불러오는데 실패했습니다.");
@@ -52,13 +52,14 @@ function EditPage() {
       console.log("게시물 수정 요청 중...");
 
       const response = await fetch(
-        `https://makterbackend.fly.dev/api/v1/post/${postId}`,
+        `https://makterback.fly.dev/api/v1/post/${postId}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(dataToSend),
+          credentials: "include", // 세션 쿠키 포함 (세션 기반 인증 시 필요)
         }
       );
 
@@ -73,6 +74,7 @@ function EditPage() {
 
       if (data.resultCode === "S-1") {
         setMessage("글이 성공적으로 수정되었습니다.");
+        handleRouter();
       } else {
         setMessage("글 수정 중 오류가 발생했습니다.");
       }

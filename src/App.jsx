@@ -114,7 +114,10 @@ function App() {
           path="/MainListPage"
           element={<CommunityListHN isAuthenticated={isAuthenticated} />}
         />
-        <Route path="/MainWritePage" element={<CommunityWriteHN />} />
+        <Route
+          path="/MainWritePage"
+          element={<CommunityWriteHN isAuthenticated={isAuthenticated} />}
+        />
         <Route path="/category/:category" element={<CategoryReviewHN />} />
         <Route path="/EditPage/:postId" element={<EditPageHN />} />
         <Route path="/Post/:postId" element={<DetailPostPageHN />} />

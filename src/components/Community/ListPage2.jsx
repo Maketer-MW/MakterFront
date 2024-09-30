@@ -5,7 +5,7 @@ function CommunityList() {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    fetch("https://makterbackend.fly.dev/api/v1/posts")
+    fetch("https://makterback.fly.dev/api/v1/posts")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch data");

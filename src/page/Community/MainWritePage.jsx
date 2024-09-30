@@ -5,7 +5,7 @@ import WritePage from "../../components/Community/WritePage";
 import ListPage2 from "../../components/Community/ListPage2";
 import { useNavigate } from "react-router-dom";
 
-function MainWritePage() {
+function MainWritePage({ isAuthenticated }) {
   const navigate = useNavigate();
   const handleRouter = (e) => {
     navigate("../MainListPage");
