@@ -4,6 +4,7 @@ import AuthModal from "./User/AuthModal";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import LoadingBurger from "./LoadingBurger"; // 로딩 컴포넌트 임포트
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const LoginRequiredOverlay = ({ onLoginSuccess }) => {
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -33,6 +34,10 @@ const LoginRequiredOverlay = ({ onLoginSuccess }) => {
       {isLoading && <LoadingBurger />} {/* 로딩 컴포넌트 표시 */}
       <Overlay>
         <OverlayContent>
+          <FontAwesomeIcon
+            icon="fa-solid fa-circle-xmark"
+            style={{ color: "#ff0000" }}
+          />
           <p>로그인이 필요합니다. 로그인 후 리뷰를 작성할 수 있습니다.</p>
           <LoginButton onClick={handleLoginClick}>로그인</LoginButton>
         </OverlayContent>

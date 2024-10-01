@@ -22,14 +22,19 @@ const Header = ({ isAuthenticated, setAuth }) => {
   const logout = async (e) => {
     e.preventDefault();
     try {
-      await fetch("https://makterback.fly.dev/api/v1/logout", {
-        method: "GET",
+      const response = await fetch("https://makterback.fly.dev/api/v1/logout", {
+        method: "POST",
         credentials: "include", // Include session cookie
       });
-      setAuth(false);
-      logoutSuccessfully();
+
+      if (response.ok) {
+        setAuth(false); // 로그아웃 상태 반영
+        logoutSuccessfully(); // 로그아웃 성공 메시지
+      } else {
+        console.error("로그아웃 실패");
+      }
     } catch (err) {
-      console.error(err.message);
+      console.error("로그아웃 요청 중 오류:", err.message);
     }
   };
 

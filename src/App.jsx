@@ -39,7 +39,7 @@ function App() {
           "https://makterback.fly.dev/api/v1/check-session",
           {
             method: "GET",
-            credentials: "include",
+            credentials: "include", // 세션 쿠키를 포함하여 요청
           }
         );
 
@@ -47,10 +47,10 @@ function App() {
         if (result.isAuthenticated) {
           setAuth(true);
         } else {
-          setAuth(false);
+          setAuth(false); // 로그아웃 후 세션이 없으면 인증 상태를 false로
         }
       } catch (error) {
-        setAuth(false);
+        setAuth(false); // 오류 발생 시 인증 상태를 false로 설정
       }
     };
 
