@@ -1,128 +1,122 @@
-// src/pages/ReviewPage.jsx
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
+import { useRecoilState } from "recoil";
+import { reviewsState, isActiveState } from "../../state/reviewAtoms";
+import { authState } from "../../state/userAtoms"; // Recoil의 authState 추가
 import styled from "styled-components";
-import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { Carousel } from "react-responsive-carousel";
-import { Link, useParams } from "react-router-dom";
+import "react-responsive-carousel/lib/styles/carousel.min.css";
+import { useParams, useLocation } from "react-router-dom";
 import RatingStars from "../../components/Review/RatingStars";
-import { useState, useRef } from "react";
 import ReviewList from "../../components/Review/ReviewList";
 import WriteReview from "../../components/Review/WriteReview";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faStar } from "@fortawesome/free-regular-svg-icons";
-import { faPhone } from "@fortawesome/free-solid-svg-icons";
-import { faClock } from "@fortawesome/free-regular-svg-icons";
-import { faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
-
+import {
+  faBurger,
+  faPhone,
+  faClock,
+  faMapMarkerAlt,
+} from "@fortawesome/free-solid-svg-icons";
 import { DeviceFrameset } from "react-device-frameset";
 import "react-device-frameset/styles/marvel-devices.min.css";
-import { useLocation } from "react-router-dom";
-import { faUtensils } from "@fortawesome/free-solid-svg-icons";
-import { faBurger } from "@fortawesome/free-solid-svg-icons";
-import LoginRequiredOverlay from "../../components/LoginRequiredOverlay";
+import LoginRequiredOverlay from "../../components/LoginRequiredOverlay"; // 로그인 요청 모달 추가
 
-function ReviewPage({ isAuthenticated }) {
+function ReviewPage() {
   const location = useLocation();
-  const restranutInfo = { ...location.state };
+  const restaurantInfo = { ...location.state };
   const { id } = useParams();
 
-  const [reviews, setReviews] = useState([]);
-  const [isActive, setIsActive] = useState(false);
+  // Recoil 상태를 사용하여 기존 useState 대체
+  const [reviews, setReviews] = useRecoilState(reviewsState);
+  const [isActive, setIsActive] = useRecoilState(isActiveState);
+  const [auth] = useRecoilState(authState); // 로그인 상태 확인
+  const lastId = useRef(4);
 
-  useEffect(() => {
-    fetchReviews(restranutInfo.id);
-  }, [restranutInfo.id]);
-
+  // 리뷰 작성/보기 토글
   const handleToggle = () => {
     setIsActive(!isActive);
   };
 
-  const fetchReviews = async (restaurantId) => {
+  // 리뷰를 서버에서 불러오는 함수
+  const fetchReviews = async (restaurant_Id) => {
     try {
       const response = await fetch(
-        `https://makterback.fly.dev/api/v1/reviews/${restaurantId}`
+        `https://makterback.fly.dev/api/v1/reviews/${restaurant_Id}`
       );
       if (!response.ok) {
-        throw new Error("Failed to fetch reviews");
+        throw new Error(`Failed to fetch reviews: ${response.status}`);
       }
-
       const data = await response.json();
-      console.log(data.reviews);
-      setReviews(data.reviews);
+      setReviews(data.reviews); // 리뷰 데이터를 Recoil 상태에 저장
     } catch (error) {
-      console.error("Error fetching reviews:", error);
+      console.error("Error fetching reviews:", error.message);
     }
   };
 
   useEffect(() => {
-    fetchReviews(restranutInfo.id); // restranutInfo.id를 사용하여 요청 보내기
-  }, [restranutInfo.id]); // restranutInfo.id가 변경될 때마다 실행
+    if (id) {
+      fetchReviews(id); // ID에 맞는 리뷰 불러오기
+    }
+  }, [id]);
 
-  const lastId = useRef(4);
-
+  // 리뷰 작성 함수
   const onSubmit = (username, content, hashtags, rating) => {
-    if (!isAuthenticated) return;
+    if (!auth.isAuthenticated) {
+      // 로그인이 안되어 있으면 LoginRequiredOverlay 표시
+      return;
+    }
 
-    const updateReviews = reviews.concat({
-      id: lastId.current,
-      username,
-      content,
-      hashtags,
-      rating,
-    });
+    const updatedReviews = [
+      ...reviews,
+      { id: lastId.current, username, content, hashtags, rating },
+    ];
 
-    setReviews(updateReviews);
+    setReviews(updatedReviews);
     lastId.current++;
 
-    // 서버로 데이터 전송
-    fetch(`https://makterback.fly.dev/api/v1/reviews`, {
+    fetch("https://makterback.fly.dev/api/v1/reviews", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      credentials: "include", // 세션 쿠키 포함 (세션 기반 인증 시 필요)
-
       body: JSON.stringify({
-        restaurant_id: id, // 레스토랑 ID
+        restaurant_id: id,
         contents: content,
         username: username,
         rating: rating,
         hashtags: hashtags,
       }),
     })
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to create review: ${response.statusText}`);
+        }
+        return response.json();
+      })
       .then((data) => {
         console.log("Success:", data);
-        fetchReviews(id); // 리뷰 작성 후에 목록 갱신
+        fetchReviews(id); // 리뷰 작성 후 다시 리뷰 목록을 불러옴
         handleToggle();
       })
       .catch((error) => {
-        console.error("Error:", error);
+        console.error("Error:", error.message);
       });
   };
 
-  const OnDelete = async (reviewId) => {
+  // 리뷰 삭제 함수
+  const OnDelete = async (review_id) => {
     try {
-      console.log("Attempting to delete review with ID:", reviewId); // 삭제 요청 전 ID 확인
       const response = await fetch(
-        `https://makterback.fly.dev/api/v1/reviews/${reviewId}`,
+        `https://makterback.fly.dev/api/v1/reviews/${review_id}`,
         {
           method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include", // 세션 쿠키 포함 (세션 기반 인증 시 필요)
         }
       );
       if (!response.ok) {
-        throw new Error("Failed to delete review");
+        throw new Error(`Failed to delete review: ${response.statusText}`);
       }
-
-      console.log("Review deleted successfully");
-      // 삭제 성공 시 화면에서도 즉시 업데이트
-      fetchReviews(id); // 리뷰 작성 후에 목록 갱신
+      fetchReviews(id);
     } catch (error) {
-      console.error("Error deleting review:", error);
+      console.error("Error deleting review:", error.message);
     }
   };
 
@@ -140,15 +134,15 @@ function ReviewPage({ isAuthenticated }) {
             width="100%"
             height="100%"
           >
-            <ImgSection backgroundImage={restranutInfo.image}>
+            <ImgSection backgroundImage={restaurantInfo.image}>
               <CardSection>
-                <CardTitle>{restranutInfo.name}</CardTitle>
-                <RatingStars rating={restranutInfo.rating} />
+                <CardTitle>{restaurantInfo.name}</CardTitle>
+                <RatingStars rating={restaurantInfo.rating} />
 
                 <ReviewPanel>
                   <ToggleContainer onClick={handleToggle}>
                     <ReviewButton active={isActive}>
-                      리뷰 {restranutInfo.rating}{" "}
+                      리뷰 {restaurantInfo.rating}{" "}
                     </ReviewButton>
                     <ReviewButton active={!isActive}>리뷰 작성</ReviewButton>
                     <ToggleSlider active={isActive} />
@@ -159,27 +153,26 @@ function ReviewPage({ isAuthenticated }) {
             <AdditionalInfoBox>
               <AdditionalInfo>
                 <InfoIcon icon={faBurger} size="2x" />
-                <InfoText>{restranutInfo.category}</InfoText>
+                <InfoText>{restaurantInfo.category}</InfoText>
               </AdditionalInfo>
               <AdditionalInfo>
                 <InfoIcon icon={faClock} size="2x" />
-
-                <InfoText>영업 시간: {restranutInfo.opening_hours}</InfoText>
+                <InfoText>영업 시간: {restaurantInfo.opening_hours}</InfoText>
               </AdditionalInfo>
               <AdditionalInfo>
                 <InfoIcon icon={faMapMarkerAlt} size="2x" />
-                <InfoText>위치: {restranutInfo.address}</InfoText>
+                <InfoText>위치: {restaurantInfo.address}</InfoText>
               </AdditionalInfo>
               <AdditionalInfo>
                 <InfoIcon icon={faPhone} size="2x" />
-                <InfoText>연락처: {restranutInfo.phone}</InfoText>
+                <InfoText>연락처: {restaurantInfo.phone}</InfoText>
               </AdditionalInfo>
             </AdditionalInfoBox>
           </DeviceFrameset>
         </ContentsContainer>
         <ReviewContainer>
           {isActive ? (
-            isAuthenticated ? (
+            auth.isAuthenticated ? (
               <WriteReview onSubmit={onSubmit} />
             ) : (
               <LoginRequiredOverlay />
@@ -189,7 +182,7 @@ function ReviewPage({ isAuthenticated }) {
           )}
         </ReviewContainer>
 
-        <Carousel autoPlay></Carousel>
+        <Carousel autoPlay />
       </Container>
     </ReveiwP>
   );
@@ -212,7 +205,6 @@ const Container = styled.div`
 
 const HeaderContainer = styled.header`
   max-width: 100%;
-
   padding: 0 20px;
   padding: 20px;
   display: flex;
@@ -225,11 +217,8 @@ const HeaderContainer = styled.header`
 const ReviewContainer = styled.main`
   max-width: 85%;
   min-height: 750px;
-
   margin-right: 40px;
-
   max-height: 750px;
-
   overflow: auto;
   flex: 1;
   display: flex;
@@ -340,72 +329,32 @@ const AdditionalInfoBox = styled.div`
   width: 100%;
   bottom: 20px;
   border-radius: 30px;
-  background-color: rgba(255, 255, 255, 0.8); /* 배경색 추가 */
+  background-color: rgba(255, 255, 255, 0.8);
 `;
 
 const AdditionalInfo = styled.div`
   display: flex;
   align-items: center;
-  padding: 10px; /* 패딩 추가 */
-  background-color: #ffffff; /* 배경색 추가 */
-  border-radius: 10px; /* 모서리 둥글게 */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 그림자 추가 */
-  transition: transform 0.2s; /* 트랜지션 추가 */
-  font-size: 16px; /* 폰트 크기 조절 */
+  padding: 10px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+  font-size: 16px;
 
   &:hover {
-    transform: translateY(-5px); /* 호버 시 살짝 올라감 */
+    transform: translateY(-5px);
   }
 `;
 
 const InfoIcon = styled(FontAwesomeIcon)`
   margin-right: 10px;
-  font-size: 24px; /* 아이콘 크기 조절 */
-  color: #555; /* 아이콘 색상 조절 */
+  font-size: 24px;
+  color: #555;
 `;
 
 const InfoText = styled.span`
-  font-size: 16px; /* 텍스트 크기 조절 */
+  font-size: 16px;
   font-weight: 600;
-  color: #333; /* 텍스트 색상 조절 */
-`;
-
-const Overlay = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6); // Blurred background effect
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-
-  p {
-    font-family: "GowunDodum-Regular";
-    font-size: 18px;
-  }
-`;
-
-const OverlayContent = styled.div`
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  text-align: center;
-`;
-
-const LoginButton = styled.button`
-  margin-top: 10px;
-  padding: 10px 20px;
-  background-color: #f4ce14;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-family: "GowunDodum-Regular";
-
-  &:hover {
-    background-color: #f0f0c3;
-  }
+  color: #333;
 `;

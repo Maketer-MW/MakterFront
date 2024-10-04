@@ -1,13 +1,10 @@
 import React, { useState } from "react";
 import { DeviceFrameset } from "react-device-frameset";
 import styled from "styled-components";
-import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUtensils } from "@fortawesome/free-solid-svg-icons";
 import { faUtensilSpoon } from "@fortawesome/free-solid-svg-icons";
 import { faFish } from "@fortawesome/free-solid-svg-icons";
 import { faCookie } from "@fortawesome/free-solid-svg-icons";
@@ -17,12 +14,11 @@ import { faIceCream } from "@fortawesome/free-solid-svg-icons";
 import { faCoffee } from "@fortawesome/free-solid-svg-icons";
 import { faHamburger } from "@fortawesome/free-solid-svg-icons";
 
-function ReviewListPage() {
+function MainReviewPages() {
   const navigate = useNavigate();
 
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [restaurants, setRestaurants] = useState({});
-  const [searchTerm, setSearchTerm] = useState("");
   const [categories, setCategories] = useState([
     "한식",
     "일식",
@@ -70,12 +66,7 @@ function ReviewListPage() {
           "There has been a problem with your fetch operation:",
           error
         );
-        // 에러 처리 로직
       });
-  };
-
-  const handleSearch = (event) => {
-    setSearchTerm(event.target.value);
   };
 
   const getCategoryIcon = (category) => {
@@ -129,7 +120,7 @@ function ReviewListPage() {
   );
 }
 
-export default ReviewListPage;
+export default MainReviewPages;
 
 const ReviewPage = styled.div`
   background: linear-gradient(#e7e78b, #f0f0c3);

@@ -1,15 +1,24 @@
-import React, { useEffect, useState } from "react";
+// 파일: src/components/Review/ReviewList.jsx
+
+import React from "react";
+import { useRecoilState } from "recoil";
+import { reviewsState } from "../../state/reviewAtoms"; // Recoil 상태 불러오기
 import styled from "styled-components";
 import ReviewItem from "./ReviewItem";
 
-function ReviewList({ reviews, onDelete }) {
-  // 삭제 요청 후 로컬 상태를 갱신하기 위한 상태
+function ReviewList({ onDelete }) {
+  const [reviews] = useRecoilState(reviewsState); // Recoil을 사용하여 상태 관리
 
   return (
     <ReviewListContainer>
       <ul>
         {reviews.map((review) => (
-          <ReviewItem key={review.id} review={review} onDelete={onDelete} />
+          // 고유한 key prop 추가
+          <ReviewItem
+            key={review.review_id || review.id}
+            review={review}
+            onDelete={onDelete}
+          />
         ))}
       </ul>
     </ReviewListContainer>

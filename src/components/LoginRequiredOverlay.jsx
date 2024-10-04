@@ -1,50 +1,100 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
+import { useRecoilState } from "recoil";
+import { authState } from "../state/userAtoms";
 import AuthModal from "./User/AuthModal";
+import LoadingBurger from "./LoadingBurger";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import LoadingBurger from "./LoadingBurger"; // 로딩 컴포넌트 임포트
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const LoginRequiredOverlay = ({ onLoginSuccess }) => {
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // 로딩 상태 추가
+  const [auth, setAuth] = useRecoilState(authState);
+  const { isAuthenticated, isLoading } = auth;
+
+  // 만약 로그인이 되어 있다면 이 컴포넌트를 렌더링하지 않도록 함
+  if (isAuthenticated) {
+    return null; // 로그인된 상태에서는 오버레이를 렌더링하지 않음
+  }
+
+  // 콘솔 로그 추가
+  useEffect(() => {
+    console.log("현재 인증 상태: ", isAuthenticated);
+  }, [isAuthenticated]);
 
   const handleLoginClick = () => {
-    setShowAuthModal(true);
+    console.log("로그인 버튼 클릭됨");
+    setAuth((prevState) => ({
+      ...prevState,
+      showAuthModal: true,
+    }));
   };
 
   const closeAuthModal = () => {
-    setShowAuthModal(false);
+    console.log("모달 닫기");
+    setAuth((prevState) => ({
+      ...prevState,
+      showAuthModal: false,
+    }));
   };
 
-  const handleLoginSuccess = () => {
-    closeAuthModal(); // 모달 닫기
-    setIsLoading(true); // 로딩 시작
-    toast.success("로그인 성공!", {
-      onClose: () => {
-        setIsLoading(false); // 로딩 종료
-        window.location.reload(); // 토스트 메시지가 닫힌 후 새로고침
-      },
-    });
+  const handleLoginSuccess = async () => {
+    closeAuthModal();
+    setAuth((prevState) => ({
+      ...prevState,
+      isLoading: true,
+    }));
+
+    try {
+      const response = await fetch(
+        "https://makterback.fly.dev/api/v1/check-session",
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
+
+      const result = await response.json();
+      if (result.isAuthenticated) {
+        setAuth((prevState) => ({
+          ...prevState,
+          isAuthenticated: true,
+          isLoading: false,
+        }));
+        toast.success("로그인 성공!", {
+          onClose: () => {
+            window.location.reload(); // 토스트 메시지가 닫힌 후 새로고침
+          },
+        });
+      } else {
+        setAuth((prevState) => ({
+          ...prevState,
+          isAuthenticated: false,
+          isLoading: false,
+        }));
+      }
+    } catch (error) {
+      console.error("세션 확인 중 에러 발생: ", error);
+      setAuth((prevState) => ({
+        ...prevState,
+        isAuthenticated: false,
+        isLoading: false,
+      }));
+      toast.error("로그인 실패. 다시 시도해주세요.");
+    }
   };
 
   return (
     <>
-      {isLoading && <LoadingBurger />} {/* 로딩 컴포넌트 표시 */}
+      {isLoading && <LoadingBurger />}
       <Overlay>
         <OverlayContent>
-          <FontAwesomeIcon
-            icon="fa-solid fa-circle-xmark"
-            style={{ color: "#ff0000" }}
-          />
           <p>로그인이 필요합니다. 로그인 후 리뷰를 작성할 수 있습니다.</p>
           <LoginButton onClick={handleLoginClick}>로그인</LoginButton>
         </OverlayContent>
       </Overlay>
-      {showAuthModal && (
+      {auth.showAuthModal && (
         <AuthModal
-          show={showAuthModal}
+          show={auth.showAuthModal}
           onClose={closeAuthModal}
           setAuth={handleLoginSuccess}
         />

@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSignInAlt, faUserCircle } from "@fortawesome/free-solid-svg-icons";
-import Potodance from "../components/Potodance";
+import Potodance from "../components/Home/Potodance";
 import ProfileModal from "../components/User/ProfileModal";
 import AuthModal from "../components/User/AuthModal";
 import { useEffect } from "react";
