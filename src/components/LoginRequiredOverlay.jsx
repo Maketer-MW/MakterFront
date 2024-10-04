@@ -60,11 +60,7 @@ const LoginRequiredOverlay = ({ onLoginSuccess }) => {
           isAuthenticated: true,
           isLoading: false,
         }));
-        toast.success("로그인 성공!", {
-          onClose: () => {
-            window.location.reload(); // 토스트 메시지가 닫힌 후 새로고침
-          },
-        });
+        toast.success("로그인 성공!", {});
       } else {
         setAuth((prevState) => ({
           ...prevState,

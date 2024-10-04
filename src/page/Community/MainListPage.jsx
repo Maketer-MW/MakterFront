@@ -5,29 +5,36 @@ import { DeviceFrameset } from "react-device-frameset";
 import ListPage from "../../components/Community/ListPage";
 import ListSerchPage from "../../components/Community/ListSerchPage";
 import LoginRequiredOverlay from "../../components/LoginRequiredOverlay";
+import { useRecoilState } from "recoil";
+import { authState } from "../../state/userAtoms";
 
-function MainListpage({ isAuthenticated }) {
+function MainListpage() {
+  // 훅은 항상 컴포넌트 최상단에 위치
+  const [auth] = useRecoilState(authState); // 로그인 상태 확인
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-  const [showOverlay, setShowOverlay] = useState(false); // Overlay 표시 상태 추가
+  const [showOverlay, setShowOverlay] = useState(false);
 
   const navigate = useNavigate();
 
+  // 글쓰기 버튼 클릭 시 실행되는 함수
   const handleRoute = () => {
-    if (isAuthenticated) {
-      navigate("/MainWritePage"); // 로그인 상태라면 글쓰기 페이지로 이동
+    if (auth.isAuthenticated) {
+      navigate("/MainWritePage");
     } else {
       setShowOverlay(true); // 로그인되지 않은 경우 Overlay 표시
     }
   };
+
+  // 검색 기능
   const handleSearch = async () => {
     if (!searchQuery.trim()) {
-      setSearchResults([]); // 공백일 때 검색 결과를 빈 배열로 설정
+      setSearchResults([]); // 공백 검색 방지
       return;
     }
     try {
       const response = await fetch(
-        `https://makterbackend.fly.dev/api/v1/posts?title=${encodeURIComponent(
+        `https://makterback.fly.dev/api/v1/posts?title=${encodeURIComponent(
           searchQuery
         )}`
       );
@@ -41,9 +48,13 @@ function MainListpage({ isAuthenticated }) {
       alert("검색 중 오류가 발생했습니다.");
     }
   };
+
   return (
     <MainContainer>
+      {/* 조건부 렌더링으로 Overlay 처리 */}
       {showOverlay && <LoginRequiredOverlay />}
+
+      {/* 콘텐츠 렌더링 */}
       <ListPageWrapper>
         <DeviceFrameset
           device="iPad Mini"
@@ -84,6 +95,7 @@ function MainListpage({ isAuthenticated }) {
 
 export default MainListpage;
 
+// 스타일 컴포넌트는 그대로 유지
 const MainContainer = styled.div`
   height: 1200px;
   background: linear-gradient(#e7e78b, #f0f0c3);
@@ -173,11 +185,10 @@ const SearchButton = styled.button`
 
 const ScrollableList = styled.div`
   flex: 1;
-  overflow-y: auto; /* 스크롤 가능하게 설정 */
+  overflow-y: auto;
   padding-left: 20px;
   margin-top: 20px;
 
-  /* 스크롤바 스타일링 */
   &::-webkit-scrollbar {
     width: 10px;
   }

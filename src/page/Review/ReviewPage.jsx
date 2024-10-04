@@ -61,8 +61,7 @@ function ReviewPage() {
   // 리뷰 작성 함수
   const onSubmit = (username, content, hashtags, rating) => {
     if (!auth.isAuthenticated) {
-      // 로그인이 안되어 있으면 LoginRequiredOverlay 표시
-      return;
+      return <LoginRequiredOverlay />;
     }
 
     const updatedReviews = [
@@ -78,6 +77,7 @@ function ReviewPage() {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify({
         restaurant_id: id,
         contents: content,
@@ -109,6 +109,7 @@ function ReviewPage() {
         `https://makterback.fly.dev/api/v1/reviews/${review_id}`,
         {
           method: "DELETE",
+          credentials: "include",
         }
       );
       if (!response.ok) {
