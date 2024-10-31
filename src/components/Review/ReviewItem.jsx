@@ -16,6 +16,7 @@ const bounceAnimation = keyframes`
 function ReviewItem({ review, onDelete }) {
   const {
     review_id,
+    author_id,
     username,
     review_contents,
     review_date,
@@ -42,12 +43,12 @@ function ReviewItem({ review, onDelete }) {
     setTimeout(() => {
       setIsClicked(false);
     }, 500);
-    onDelete(review_id);
+    onDelete(review_id, author_id);
   };
 
   return (
     <ReviewItemContainer>
-      <Username>{username}</Username>
+      <Username>{username}</Username> {/* full_name 표시 */}
       <RatingStars rating={rating} />
       <Content>{review_contents}</Content>
       <Date>{formatDate(review_date)}</Date>

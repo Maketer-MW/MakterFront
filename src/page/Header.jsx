@@ -20,6 +20,7 @@ const Header = () => {
   const [showProfileModal, setShowProfileModal] =
     useRecoilState(profileModalState);
   const [isAuthenticated, setAuth] = useRecoilState(authState);
+
   const [showDropdown, setShowDropdown] = useState(false); // 상태를 Recoil로 옮기지 않아도 됨
   const navigate = useNavigate();
 
@@ -34,7 +35,12 @@ const Header = () => {
       });
 
       if (response.ok) {
-        setAuth(false); // 로그아웃 상태 반영
+        setAuth({
+          isAuthenticated: false,
+          userId: null,
+          username: "",
+          email: "",
+        });
         logoutSuccessfully(); // 로그아웃 성공 메시지
       } else {
         console.error("로그아웃 실패");
@@ -77,7 +83,7 @@ const Header = () => {
         <NavLink to="/service">맛 설정 모드</NavLink>
         <ProfileContainer>
           <ProfileImage onClick={handleProfileClick}>
-            {isAuthenticated ? (
+            {isAuthenticated.isAuthenticated ? (
               <FontAwesomeIcon icon={faUserCircle} size="2x" />
             ) : (
               <PlaceholderCircle>
@@ -88,14 +94,14 @@ const Header = () => {
 
           {showDropdown && (
             <DropdownMenu>
-              {isAuthenticated ? (
+              {isAuthenticated.isAuthenticated ? (
                 <DropdownHeader>
                   <ProfileImageCircle>
                     <FontAwesomeIcon icon={faUserCircle} size="2x" />
                   </ProfileImageCircle>
                   <UserInfo>
-                    <UserName>사용자 이름</UserName>
-                    <UserEmail>rabbittby@email.com</UserEmail>
+                    <UserName>{isAuthenticated.username}</UserName>
+                    <UserEmail>{isAuthenticated.email}</UserEmail>
                   </UserInfo>
                 </DropdownHeader>
               ) : (
@@ -111,7 +117,7 @@ const Header = () => {
               )}
 
               <DropdownItems>
-                {isAuthenticated ? (
+                {isAuthenticated.isAuthenticated ? (
                   <>
                     <DropdownItem onClick={() => handleMypageClick()}>
                       <img
@@ -158,11 +164,7 @@ const Header = () => {
       </NavLinks>
 
       {showLoginModal && (
-        <AuthModal
-          show={showLoginModal}
-          onClose={closeLoginModal}
-          setAuth={setAuth}
-        />
+        <AuthModal show={showLoginModal} onClose={closeLoginModal} />
       )}
       {showProfileModal && (
         <ProfileModal show={showProfileModal} onClose={closeProfileModal} />

@@ -25,7 +25,6 @@ function ReviewPage() {
   const restaurantInfo = { ...location.state };
   const { id } = useParams();
 
-  // Recoil 상태를 사용하여 기존 useState 대체
   const [reviews, setReviews] = useRecoilState(reviewsState);
   const [isActive, setIsActive] = useRecoilState(isActiveState);
   const [auth] = useRecoilState(authState); // 로그인 상태 확인
@@ -46,6 +45,7 @@ function ReviewPage() {
         throw new Error(`Failed to fetch reviews: ${response.status}`);
       }
       const data = await response.json();
+      console.log(data.reviews); // 가져온 리뷰 데이터 확인
       setReviews(data.reviews); // 리뷰 데이터를 Recoil 상태에 저장
     } catch (error) {
       console.error("Error fetching reviews:", error.message);
@@ -59,14 +59,20 @@ function ReviewPage() {
   }, [id]);
 
   // 리뷰 작성 함수
-  const onSubmit = (username, content, hashtags, rating) => {
+  const onSubmit = (title, content, hashtags, rating) => {
     if (!auth.isAuthenticated) {
       return <LoginRequiredOverlay />;
     }
 
     const updatedReviews = [
       ...reviews,
-      { id: lastId.current, username, content, hashtags, rating },
+      {
+        id: lastId.current,
+        title,
+        content,
+        hashtags,
+        rating,
+      },
     ];
 
     setReviews(updatedReviews);
@@ -81,9 +87,10 @@ function ReviewPage() {
       body: JSON.stringify({
         restaurant_id: id,
         contents: content,
-        username: username,
+        username: auth.fullName,
         rating: rating,
         hashtags: hashtags,
+        author_id: auth.userId, // auth에서 사용자 ID 가져와 author_id로 전달
       }),
     })
       .then((response) => {
@@ -103,7 +110,15 @@ function ReviewPage() {
   };
 
   // 리뷰 삭제 함수
-  const OnDelete = async (review_id) => {
+  const OnDelete = async (review_id, author_id) => {
+    console.log("auth.userId:", auth.userId); // 로그인한 사용자 ID
+    console.log("review.author_id:", author_id); // 리뷰 작성자 ID
+
+    if (auth.userId !== author_id) {
+      alert("본인이 작성한 리뷰만 삭제할 수 있습니다.");
+      return;
+    }
+
     try {
       const response = await fetch(
         `https://makterback.fly.dev/api/v1/reviews/${review_id}`,

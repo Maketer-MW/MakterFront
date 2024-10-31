@@ -2,24 +2,27 @@ import React from "react";
 import styled from "styled-components";
 import { useRecoilState } from "recoil";
 import {
-  usernameState,
+  titleState,
   contentState,
   hashtagsState,
   ratingState,
 } from "../../state/reviewAtoms";
 import HashTag from "./HashTag";
 import RatingStars from "./RatingStars";
+import LoginRequiredOverlay from "../LoginRequiredOverlay";
+import { authState } from "../../state/userAtoms";
 
 function WriteReview({ onSubmit }) {
-  const [username, setUsername] = useRecoilState(usernameState);
+  const [title, setTitle] = useRecoilState(titleState);
   const [content, setContent] = useRecoilState(contentState);
   const [hashtags, setHashtags] = useRecoilState(hashtagsState);
   const [rating, setRating] = useRecoilState(ratingState);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(username, content, hashtags, rating);
-    setUsername("");
+
+    onSubmit(title, content, hashtags, rating);
+    setTitle("");
     setContent("");
     setHashtags([]);
     setRating(0);
@@ -39,8 +42,8 @@ function WriteReview({ onSubmit }) {
         <SmallInput
           type="text"
           placeholder="제목"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
           required
         />
         <InputLabel>후기</InputLabel>

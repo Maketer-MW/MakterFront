@@ -8,8 +8,8 @@ export const reviewsState = atom({
   default: [],
 });
 
-export const usernameState = atom({
-  key: "usernameState",
+export const titleState = atom({
+  key: "titleState",
   default: "",
 });
 

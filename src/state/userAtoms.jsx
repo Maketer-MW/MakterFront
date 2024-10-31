@@ -16,5 +16,8 @@ export const authState = atom({
     isAuthenticated: false,
     isLoading: false,
     showAuthModal: false,
+    userId: null,
+    username: "",
+    email: "",
   },
 });
