@@ -27,7 +27,7 @@ const FoodBox = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetch("https://maketerback.fly.dev/api/v1/restaurants")
+    fetch("https://makterback.fly.dev/api/v1/restaurants")
       .then((response) => response.json())
       .then((data) => {
         const sortedRestaurants = Array.isArray(data.data)
@@ -63,7 +63,6 @@ const FoodBox = () => {
 
   return (
     <Container onClick={handleContainerClick}>
-      {loading && <p>Loading...</p>}
       {error && <p>{error}</p>}
       {!loading &&
         !error &&

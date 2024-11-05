@@ -31,6 +31,7 @@ function FoodDetail() {
       state: {
         id: `${selectedRestaurant.restaurants_id}`,
         name: `${selectedRestaurant.restaurants_name}`,
+        category: `${selectedRestaurant.restaurants_category}`,
         address: `${selectedRestaurant.address}`,
         phone: `${selectedRestaurant.phone}`,
         opening_hours: `${selectedRestaurant.opening_hours}`,

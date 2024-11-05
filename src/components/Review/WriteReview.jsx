@@ -38,14 +38,6 @@ function WriteReview({ onSubmit }) {
         <RatingStars rating={rating} onRate={setRating} />
       </RatingContainer>
       <Form onSubmit={handleSubmit}>
-        <InputLabel>제목</InputLabel>
-        <SmallInput
-          type="text"
-          placeholder="제목"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        />
         <InputLabel>후기</InputLabel>
         <Textarea
           placeholder="후기를 작성해주세요"
