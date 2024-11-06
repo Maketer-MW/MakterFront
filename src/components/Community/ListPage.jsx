@@ -61,6 +61,7 @@ function CommunityList() {
           >
             <PostContent>
               <RestaurantName>{post.title}</RestaurantName>
+              <Date>작성자: {post.username}</Date>
               <Date>날짜: {post.post_date}</Date>
             </PostContent>
             <ButtonContainer>
