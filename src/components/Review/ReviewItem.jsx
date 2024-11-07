@@ -5,6 +5,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState } from "react";
 import styled, { css, keyframes } from "styled-components";
 import RatingStars from "./RatingStars";
+import { useRecoilValue } from "recoil"; // Recoil의 useRecoilValue import
+
+import { authState } from "../../state/userAtoms"; // authState 파일 경로에 맞게 변경
 
 // bounceAnimation 애니메이션 정의
 const bounceAnimation = keyframes`
@@ -24,6 +27,9 @@ function ReviewItem({ review, onDelete }) {
     rating,
   } = review;
 
+  const auth = useRecoilValue(authState); // 현재 로그인된 사용자 정보 가져오기
+  const [isClicked, setIsClicked] = useState(false);
+
   const formatDate = (dateString) => {
     if (!dateString) {
       return "";
@@ -34,8 +40,6 @@ function ReviewItem({ review, onDelete }) {
     const day = dateParts[2];
     return `${year}-${month}-${day}`;
   };
-
-  const [isClicked, setIsClicked] = useState(false);
 
   const reviewDeleteHandler = (event) => {
     event.preventDefault();
@@ -58,9 +62,11 @@ function ReviewItem({ review, onDelete }) {
         ))}
       </HashTagsContainer>
       <ActionButtonsContainer>
-        <DeleteButton $isClicked={isClicked} onClick={reviewDeleteHandler}>
-          <TrashIcon icon={faTrash} size="2xl" $isClicked={isClicked} />
-        </DeleteButton>
+        {author_id === auth.userId && (
+          <DeleteButton $isClicked={isClicked} onClick={reviewDeleteHandler}>
+            <TrashIcon icon={faTrash} size="2xl" $isClicked={isClicked} />
+          </DeleteButton>
+        )}
       </ActionButtonsContainer>
     </ReviewItemContainer>
   );

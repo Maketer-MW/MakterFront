@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
+import { useRecoilValue } from "recoil"; // Recoil의 useRecoilValue import
+import { authState } from "../../state/userAtoms"; // authState 파일 경로에 맞게 변경
 
 function CommunityList() {
   const [posts, setPosts] = useState([]);
   const navigate = useNavigate();
+  const auth = useRecoilValue(authState); // 현재 로그인된 사용자 정보 가져오기
 
   useEffect(() => {
     fetch("https://makterback.fly.dev/api/v1/posts")
@@ -65,16 +68,20 @@ function CommunityList() {
               <Date>날짜: {post.post_date}</Date>
             </PostContent>
             <ButtonContainer>
-              <DeleteButton
-                onClick={(event) => handleDelete(post.post_id, event)}
-              >
-                삭제
-              </DeleteButton>
-              <UpdateButton
-                onClick={(event) => handleUpdate(post.post_id, event)}
-              >
-                수정
-              </UpdateButton>
+              {post.author_id === auth.userId && (
+                <DeleteButton
+                  onClick={(event) => handleDelete(post.post_id, event)}
+                >
+                  삭제
+                </DeleteButton>
+              )}
+              {post.author_id === auth.userId && (
+                <UpdateButton
+                  onClick={(event) => handleUpdate(post.post_id, event)}
+                >
+                  수정
+                </UpdateButton>
+              )}
             </ButtonContainer>
           </PostContainer>
         ))}
