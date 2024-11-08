@@ -5,6 +5,7 @@ import {
   selectedRestaurantFromButtonState,
   isDetailModalOpenState,
   mapMoveFunctionState,
+  selectedRestaurantState,
 } from "../../state/mapAtoms";
 import FoodIndex from "../Home/FoodIndex";
 import { useNavigate } from "react-router-dom";
@@ -13,6 +14,7 @@ function FoodDetail() {
   const selectedRestaurant = useRecoilValue(selectedRestaurantFromButtonState);
   const setIsDetailModalOpen = useSetRecoilState(isDetailModalOpenState);
   const mapMoveFunction = useRecoilValue(mapMoveFunctionState); // Get the map move function
+  const setSelectedRestaurant = useSetRecoilState(selectedRestaurantState); // 리뷰 상태 설정 함수
   const [showFoodIndex, setShowFoodIndex] = useState(false);
   const modalRef = useRef(null);
   const navigate = useNavigate();
@@ -22,21 +24,19 @@ function FoodDetail() {
   };
 
   const handleDetailPost = () => {
+    console.log(selectedRestaurant);
     if (!selectedRestaurant || !selectedRestaurant.restaurants_id) {
       console.error("No selected restaurant or restaurant ID");
       return;
     }
 
+    // reviewRestaurantState에 선택한 레스토랑 정보 저장
+    setSelectedRestaurant(selectedRestaurant);
+
+    // 리뷰 페이지로 이동하면서 state로 데이터 전달
     navigate(`/review/${selectedRestaurant.restaurants_id}`, {
       state: {
-        id: `${selectedRestaurant.restaurants_id}`,
-        name: `${selectedRestaurant.restaurants_name}`,
-        category: `${selectedRestaurant.restaurants_category}`,
-        address: `${selectedRestaurant.address}`,
-        phone: `${selectedRestaurant.phone}`,
-        opening_hours: `${selectedRestaurant.opening_hours}`,
-        rating: `${selectedRestaurant.rating}`,
-        image: `${selectedRestaurant.image}`,
+        restaurant: selectedRestaurant,
       },
     });
   };

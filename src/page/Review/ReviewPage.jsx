@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { reviewsState, isActiveState } from "../../state/reviewAtoms";
 import { authState } from "../../state/userAtoms"; // Recoil의 authState 추가
 import styled from "styled-components";
@@ -19,21 +19,33 @@ import {
 import { DeviceFrameset } from "react-device-frameset";
 import "react-device-frameset/styles/marvel-devices.min.css";
 import LoginRequiredOverlay from "../../components/LoginRequiredOverlay"; // 로그인 요청 모달 추가
+import LoadingBurger from "../../components/LoadingBurger";
+import { selectedRestaurantState } from "../../state/mapAtoms";
 
 function ReviewPage() {
   const location = useLocation();
-  const restaurantInfo = { ...location.state };
   const { id } = useParams();
+
+  const selectedRestaurant = useRecoilValue(selectedRestaurantState);
 
   const [reviews, setReviews] = useRecoilState(reviewsState);
   const [isActive, setIsActive] = useRecoilState(isActiveState);
   const [auth] = useRecoilState(authState); // 로그인 상태 확인
-  const lastId = useRef(4);
+
+  // `location.state`에서 데이터 가져오기
+  const restaurantInfo = location.state?.restaurant || selectedRestaurant;
 
   // 리뷰 작성/보기 토글
   const handleToggle = () => {
     setIsActive(!isActive);
   };
+
+  useEffect(() => {
+    console.log(restaurantInfo);
+    if (!restaurantInfo) {
+      console.error("레스토랑 정보가 없습니다.");
+    }
+  }, [restaurantInfo]);
 
   // 리뷰를 서버에서 불러오는 함수
   const fetchReviews = async (restaurant_Id) => {
@@ -54,7 +66,7 @@ function ReviewPage() {
 
   useEffect(() => {
     if (id) {
-      fetchReviews(id); // ID에 맞는 리뷰 불러오기
+      fetchReviews(id);
     }
   }, [id]);
 
@@ -152,7 +164,7 @@ function ReviewPage() {
           >
             <ImgSection backgroundImage={restaurantInfo.image}>
               <CardSection>
-                <CardTitle>{restaurantInfo.name}</CardTitle>
+                <CardTitle>{restaurantInfo.restaurants_name}</CardTitle>
                 <RatingStars rating={restaurantInfo.rating} />
 
                 <ReviewPanel>

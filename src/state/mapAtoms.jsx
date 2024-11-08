@@ -132,3 +132,13 @@ export const directionsState = atom({
   key: "directionsState",
   default: null,
 });
+
+export const selectedCategoryState = atom({
+  key: "selectedCategoryState",
+  default: null,
+});
+
+export const categoryRestaurantsState = atom({
+  key: "categoryRestaurantsState",
+  default: [],
+});
